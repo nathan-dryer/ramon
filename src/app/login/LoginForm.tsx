@@ -19,7 +19,7 @@ function SubmitButton() {
       className="w-full max-w-xs mx-auto bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg rounded-full" 
       disabled={pending}
     >
-      {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Let's Party!"}
+      {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <span className="font-bold">Let's Party!</span>}
     </Button>
   );
 }
