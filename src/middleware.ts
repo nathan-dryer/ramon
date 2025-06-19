@@ -8,12 +8,19 @@ const ADMIN_COOKIE_VALUE = 'admin_is_authenticated';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith('/admin/dashboard')) {
+  // Protect only the /admin/videos path now
+  if (pathname.startsWith('/admin/videos')) {
     const adminCookie = cookies().get(ADMIN_COOKIE_NAME);
     if (!adminCookie || adminCookie.value !== ADMIN_COOKIE_VALUE) {
-      return NextResponse.redirect(new URL('/admin', request.url));
+      // Redirect to login page, admin can login via AdminIcon there
+      return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
   return NextResponse.next();
 }
+
+// Specify paths for the middleware to run on
+export const config = {
+  matcher: ['/admin/videos/:path*'], // Only run middleware for /admin/videos routes
+};

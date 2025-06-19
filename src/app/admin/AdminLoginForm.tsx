@@ -3,8 +3,6 @@
 
 import { useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
-import { adminLogin } from './actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,10 +19,13 @@ function SubmitButton() {
   );
 }
 
-export function AdminLoginForm() {
+interface AdminLoginFormProps {
+  onSuccess?: () => void;
+}
+
+export function AdminLoginForm({ onSuccess }: AdminLoginFormProps) {
   const [state, formAction] = useActionState(adminLogin, { error: null, success: false });
   const { toast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     if (state?.error) {
@@ -36,11 +37,11 @@ export function AdminLoginForm() {
     }
 
     if(state?.success){
-        // Close dialog (if any parent is listening for this)
-        // For now, just redirect. Parent dialog needs to handle closing itself on successful login.
-        router.push('/admin/dashboard'); 
+        if (onSuccess) {
+          onSuccess();
+        }
     }
-  }, [state, toast, router]);
+  }, [state, toast, onSuccess]);
 
   return (
     <form action={formAction} className="space-y-6">
@@ -58,4 +59,3 @@ export function AdminLoginForm() {
     </form>
   );
 }
-
