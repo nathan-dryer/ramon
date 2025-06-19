@@ -2,23 +2,22 @@
 import { LoginForm } from './LoginForm';
 import { isPasswordEnabled } from '@/lib/password-state';
 import { AdminIcon } from '@/components/auth/AdminIcon';
-import { PartyPopper } from 'lucide-react';
-import { isAdminAuthenticated } from '@/lib/adminAuth'; // Import admin auth check
-import { PasswordSettingsForm } from './PasswordSettingsForm'; // Import the new form
-import { SiteHeader } from '@/components/layout/SiteHeader'; // For consistent header if needed on login
+import { PartyPopper, Video } from 'lucide-react';
+import { isAdminAuthenticated } from '@/lib/adminAuth'; 
+import { PasswordSettingsForm } from './PasswordSettingsForm'; 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Video } from 'lucide-react';
+
 
 export default async function LoginPage() {
   const passwordEnabled = await isPasswordEnabled();
-  const isAdmin = await isAdminAuthenticated(); // Check if admin is logged in
+  const isAdmin = await isAdminAuthenticated(); 
 
   return (
     <main className="min-h-screen text-foreground">
-      <AdminIcon />
+      <AdminIcon isAuthenticated={isAdmin} />
       <div
-        className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8 pt-16 md:pt-20" // Added padding top
+        className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8 pt-16 md:pt-20"
       >
         <div className="text-center mb-4 md:mb-6">
           <div className="flex justify-center mb-4">

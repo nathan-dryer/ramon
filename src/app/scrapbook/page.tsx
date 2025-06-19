@@ -20,7 +20,7 @@ export default async function ScrapbookPage() {
             Ramon's 50th Jubilee
           </h1>
         </Link>
-        <AdminIcon />
+        <AdminIcon isAuthenticated={isAdmin} />
       </header>
       <div className="container mx-auto px-4 py-8 flex-grow">
         <div className="text-center mb-12 relative">

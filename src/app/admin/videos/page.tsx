@@ -8,6 +8,7 @@ import type { ScrapbookItemData } from '@/types';
 import { Separator } from '@/components/ui/separator';
 import { Video, ListVideo, Pin as PinIcon, PlayCircle } from 'lucide-react';
 import { PinToggleButton } from './PinToggleButton';
+import { isAdminAuthenticated } from '@/lib/adminAuth';
 
 async function SubmittedVideosList() {
   const videos = await getAdminVideos();
@@ -43,10 +44,11 @@ async function SubmittedVideosList() {
 }
 
 
-export default function AdminVideosPage() {
+export default async function AdminVideosPage() {
+  const isAdmin = await isAdminAuthenticated();
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <SiteHeader />
+      <SiteHeader isAdmin={isAdmin} />
       <div className="container mx-auto px-4 py-8 flex-grow">
         <div className="text-center mb-12">
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground mb-3">
