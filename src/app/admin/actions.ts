@@ -3,6 +3,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache'; // Added import
 
 // Use environment variable for admin password, default if not set.
 // Ensure it's lowercase for consistent comparison.
@@ -42,6 +43,13 @@ export async function logoutAdmin() {
     path: '/', // Ensure cookie is cleared for the correct path
     sameSite: 'lax',
   });
+
+  // Revalidate common paths that might be affected or navigated to
+  revalidatePath('/login');
+  revalidatePath('/scrapbook'); // A common page an admin might be on
+  // Optionally, revalidate other admin-related or frequently visited pages if necessary
+  // For example, if an admin might also log out from the /admin/videos page:
+  // revalidatePath('/admin/videos');
+
   redirect('/login'); // Redirect to login page after admin logout
 }
-
