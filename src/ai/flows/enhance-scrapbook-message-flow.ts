@@ -11,13 +11,13 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-export const EnhanceScrapbookMessageInputSchema = z.object({
+const EnhanceScrapbookMessageInputSchema = z.object({
   originalMessage: z.string().describe('The original message content written by the user.'),
   originalTitle: z.string().optional().describe('The original title provided by the user (can be empty).'),
 });
 export type EnhanceScrapbookMessageInput = z.infer<typeof EnhanceScrapbookMessageInputSchema>;
 
-export const EnhanceScrapbookMessageOutputSchema = z.object({
+const EnhanceScrapbookMessageOutputSchema = z.object({
   enhancedMessage: z.string().describe('The message content, enhanced with 2-3 relevant emojis integrated naturally within the text. If the original message is very short, the AI can slightly expand it if appropriate while keeping the user original intent.'),
   enhancedTitle: z.string().describe('A concise, engaging, and celebratory title for the scrapbook post. If the original title was good, it can be kept or slightly improved. If it was empty or too generic, a new one should be generated.'),
   suggestedAccentColor: z.enum(['accent1', 'accent2']).describe("Suggest either 'accent1' (magenta - for vibrant, energetic, or very positive messages) or 'accent2' (gold - for warm, celebratory, or slightly more formal good wishes) based on the overall tone and content of the message and title."),
