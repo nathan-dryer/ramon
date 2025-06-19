@@ -23,11 +23,8 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         <div className="relative min-h-screen flex flex-col">
-          <div
-            className="fixed inset-0 -z-10 bg-gradient-animation"
-            aria-hidden="true"
-          />
-          <main className="flex-grow flex flex-col z-10">
+          {/* Removed fixed gradient background div */}
+          <main className="flex-grow flex flex-col">
             {children}
           </main>
           <Toaster />

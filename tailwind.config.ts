@@ -1,7 +1,7 @@
 import type {Config} from 'tailwindcss';
 
 export default {
-  darkMode: ['class'],
+  darkMode: ['class'], // class or 'media' or boolean
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -37,11 +37,11 @@ export default {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
         },
-        accent1: { // Changed from accent
+        accent1: { 
           DEFAULT: 'hsl(var(--accent1))',
           foreground: 'hsl(var(--accent1-foreground))',
         },
-        accent2: { // Changed from gold
+        accent2: { 
           DEFAULT: 'hsl(var(--accent2))',
           foreground: 'hsl(var(--accent2-foreground))',
         },
@@ -92,23 +92,10 @@ export default {
             height: '0',
           },
         },
-        subtleGradient: {
-          '0%': { backgroundPosition: '0% 0%' },
-          '25%': { backgroundPosition: '100% 0%' },
-          '50%': { backgroundPosition: '100% 100%' },
-          '75%': { backgroundPosition: '0% 100%' },
-          '100%': { backgroundPosition: '0% 0%' },
-        },
-        spin: {
-          '0%': { transform: 'translate(-50%, -50%) rotate(0deg)' },
-          '100%': { transform: 'translate(-50%, -50%) rotate(360deg)' },
-        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        subtleGradient: 'subtleGradient 20s ease infinite',
-        spin: 'spin 4s linear infinite',
       },
     },
   },

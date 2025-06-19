@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ export function LeaveMessageDialog({ className }: LeaveMessageDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleFormSuccess = () => {
-    setIsOpen(false); // Close dialog on successful submission
+    setIsOpen(false); 
   };
 
   return (
@@ -31,20 +32,20 @@ export function LeaveMessageDialog({ className }: LeaveMessageDialogProps) {
         <Button 
           variant="default" 
           size="lg" 
-          className={`bg-accent1-DEFAULT hover:bg-accent1-DEFAULT/80 text-accent1-foreground shadow-lg button-neon-glow ${className}`}
+          className={`bg-primary hover:bg-primary/90 text-primary-foreground shadow-md ${className}`}
         >
-          <MessageCirclePlus className="mr-2 h-6 w-6" />
-          <span>Leave a Message / Roast / Toast!</span>
+          <MessageCirclePlus className="mr-2 h-5 w-5 md:h-6 md:w-6" />
+          <span>Leave a Message / Photo!</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[90vw] md:max-w-[70vw] lg:max-w-[50vw] xl:max-w-[40vw] bg-card/90 backdrop-blur-md border-accent1-DEFAULT neon-glow-accent1 p-0">
-        <DialogHeader className="p-6 pb-4">
-          <DialogTitle className="text-2xl text-accent1-DEFAULT text-shadow-accent1">Share Your Thoughts for Ramon!</DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Drop a birthday wish, a funny roast, or a heartfelt toast. Let's fill this scrapbook with awesome memories!
+      <DialogContent className="sm:max-w-[90vw] md:max-w-[70vw] lg:max-w-[50vw] xl:max-w-[40vw] bg-card/95 backdrop-blur-md border-primary/50 p-0 rounded-lg">
+        <DialogHeader className="p-6 pb-4 border-b">
+          <DialogTitle className="text-2xl text-primary">Share Your Thoughts for Ramon!</DialogTitle>
+          <DialogDescription className="text-muted-foreground font-body">
+            Drop a birthday wish, a funny memory, or a cool photo. Let's fill this scrapbook!
           </DialogDescription>
         </DialogHeader>
-        <div className="p-6 pt-0 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 pt-4 max-h-[70vh] overflow-y-auto">
           <LeaveMessageForm onSuccess={handleFormSuccess} />
         </div>
         <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">

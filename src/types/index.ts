@@ -10,4 +10,6 @@ export interface ScrapbookItemData {
   description?: string; // Optional message to accompany a photo
   timestamp?: string; // ISO string date
   accentColor?: 'accent1' | 'accent2'; // For item-specific accent (e.g., magenta or cyan)
+  pinned?: boolean; // Added for pinning feature
+  dataAiHint?: string; // For AI image search hint
 }

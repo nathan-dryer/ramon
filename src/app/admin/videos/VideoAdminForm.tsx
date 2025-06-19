@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
@@ -13,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" className="w-full sm:w-auto bg-accent2-DEFAULT hover:bg-accent2-DEFAULT/80 text-accent2-foreground button-neon-glow" disabled={pending}>
+    <Button type="submit" className="w-full sm:w-auto bg-accent2 hover:bg-accent2/90 text-accent2-foreground" disabled={pending}>
       {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
       <span>Add Video</span>
     </Button>
@@ -42,7 +43,7 @@ export function VideoAdminForm() {
       toast({
         title: "Success",
         description: state.success,
-        action: <CheckCircle className="text-green-500" />,
+        action: <CheckCircle className="text-green-500" />, // This green might need to be themed if too off
       });
       formRef.current?.reset(); 
     }
@@ -53,18 +54,18 @@ export function VideoAdminForm() {
     <form action={formAction} ref={formRef} className="space-y-6">
       <div>
         <Label htmlFor="title" className="font-body text-foreground">Video Title</Label>
-        <Input id="title" name="title" required className="mt-1 bg-input/50 border-border focus:ring-accent2-DEFAULT text-foreground"/>
+        <Input id="title" name="title" required className="mt-1 bg-input border-border focus:ring-primary text-foreground"/>
       </div>
       <div>
         <Label htmlFor="videoUrl" className="font-body text-foreground">Video URL or Embed Code</Label>
-        <Textarea id="videoUrl" name="videoUrl" required rows={3} className="mt-1 bg-input/50 border-border focus:ring-accent2-DEFAULT text-foreground" placeholder="e.g., https://www.youtube.com/embed/VIDEO_ID or <iframe ...></iframe>"/>
+        <Textarea id="videoUrl" name="videoUrl" required rows={3} className="mt-1 bg-input border-border focus:ring-primary text-foreground" placeholder="e.g., https://www.youtube.com/embed/VIDEO_ID or <iframe ...></iframe>"/>
         <p className="text-xs text-muted-foreground mt-1 font-body">
           Supports YouTube/Vimeo embed URLs, direct .mp4 links, or full iframe embed code.
         </p>
       </div>
       <div>
         <Label htmlFor="contributor" className="font-body text-foreground">Contributor Name (Optional)</Label>
-        <Input id="contributor" name="contributor" className="mt-1 bg-input/50 border-border focus:ring-accent2-DEFAULT text-foreground" placeholder="e.g., Site Admin or Family Friend"/>
+        <Input id="contributor" name="contributor" className="mt-1 bg-input border-border focus:ring-primary text-foreground" placeholder="e.g., Site Admin or Family Friend"/>
       </div>
       <SubmitButton />
     </form>

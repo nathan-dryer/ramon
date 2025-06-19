@@ -9,53 +9,70 @@ body {
 
 @layer base {
   :root {
-    /* Vibrant Dark Theme with Neon Rave Accents */
-    --background: 220 30% 10%; /* Deep, slightly desaturated blue */
-    --foreground: 210 40% 95%; /* Very light grey-blue */
+    /* Modern Minimalist Theme */
+    --background: 40 33% 97%; /* #F8F7F4 Off-white */
+    --foreground: 0 0% 20%;   /* #333333 Charcoal grey */
 
-    --card: 220 30% 15%; 
-    --card-foreground: 210 40% 95%;
+    --card: 40 20% 94%; 
+    --card-foreground: 0 0% 20%;
 
-    --popover: 220 30% 12%;
-    --popover-foreground: 210 40% 95%;
+    --popover: 40 20% 93%;
+    --popover-foreground: 0 0% 20%;
 
-    --primary: 180 100% 50%; /* Neon Cyan */
-    --primary-foreground: 220 30% 5%; /* Dark text on Neon Cyan */
+    --primary: 325 79% 48%; /* #E01A7D Magenta */
+    --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 220 30% 25%; /* Lighter deep blue */
-    --secondary-foreground: 210 40% 90%; 
+    --secondary: 0 0% 90%; 
+    --secondary-foreground: 0 0% 20%; 
 
-    --muted: 220 30% 20%;
-    --muted-foreground: 210 40% 65%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 45%; /* Slightly darker for better contrast on muted bg */
 
-    --accent1: 300 100% 70%; /* Vibrant Magenta/Purple */
-    --accent1-foreground: 0 0% 98%; /* White text on accent1 */
+    --accent1: 325 79% 48%; /* #E01A7D Magenta */
+    --accent1-foreground: 0 0% 100%; /* White */
     
-    --accent2: 180 100% 50%; /* Neon Cyan */
-    --accent2-foreground: 220 30% 5%; /* Dark text on accent2 */
+    --accent2: 47 100% 50%; /* #FFC700 Gold */
+    --accent2-foreground: 0 0% 10%; /* Very dark grey/black for contrast on gold */
 
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 30% 30%;
-    --input: 220 30% 28%;
-    --ring: 180 100% 50%; /* Neon Cyan for focus rings */
+    --border: 0 0% 85%;
+    --input: 0 0% 95%;
+    --ring: 325 79% 48%; /* Magenta for focus rings */
     
     --radius: 0.5rem;
-
-    /* HSL components for gradient animation */
-    --gradAccent1H: 300; 
-    --gradAccent1S: 100%; 
-    --gradAccent1L: 60%; /* Magenta */
-    --gradAccent2H: 180; 
-    --gradAccent2S: 100%; 
-    --gradAccent2L: 50%; /* Cyan */
   }
 
-  /* The .dark class can be a no-op if the default is dark, or for future variants */
   .dark { 
-    /* Example: could make it even darker or change accents if needed */
-    /* --background: 220 30% 5%; */
+    /* For potential future dark mode variant, keep variables for consistency */
+    --background: 0 0% 10%; 
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 325 79% 55%; /* Slightly lighter Magenta for dark mode */
+    --primary-foreground: 0 0% 10%;
+
+    --secondary: 0 0% 25%;
+    --secondary-foreground: 0 0% 90%; 
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent1: 325 79% 55%; 
+    --accent1-foreground: 0 0% 10%; 
+    
+    --accent2: 47 100% 55%; /* Slightly lighter Gold for dark mode */
+    --accent2-foreground: 0 0% 10%;
+
+    --border: 0 0% 30%;
+    --input: 0 0% 28%;
+    --ring: 325 79% 55%;
   }
 }
 
@@ -69,83 +86,10 @@ body {
 }
 
 @layer utilities {
-  .bg-gradient-animation {
-    background: radial-gradient(circle at 10% 20%, hsla(var(--gradAccent1H), var(--gradAccent1S), var(--gradAccent1L), 0.15), transparent 50%),
-                radial-gradient(circle at 90% 80%, hsla(var(--gradAccent2H), var(--gradAccent2S), var(--gradAccent2L), 0.15), transparent 50%),
-                radial-gradient(circle at 50% 50%, hsla(var(--gradAccent1H), var(--gradAccent1S), var(--gradAccent1L), 0.05), transparent 40%);
-    background-size: 300% 300%;
-    animation: subtleGradient 20s ease infinite;
-  }
+  /* Subtle hover effects - can be applied with Tailwind classes directly */
+  /* Example: hover:shadow-md hover:scale-[1.02] transition-all */
 
-  @keyframes subtleGradient {
-    0% { background-position: 0% 0%; }
-    25% { background-position: 100% 0%; }
-    50% { background-position: 100% 100%; }
-    75% { background-position: 0% 100%; }
-    100% { background-position: 0% 0%; }
-  }
-
-  .text-shadow-accent1 {
-    text-shadow: 0px 0px 10px hsl(var(--accent1) / 0.8);
-  }
-  .text-shadow-accent2 {
-    text-shadow: 0px 0px 10px hsl(var(--accent2) / 0.8);
-  }
-   .neon-glow-accent1 {
-    transition: box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
-    border: 1px solid hsl(var(--accent1) / 0.5);
-  }
-  .neon-glow-accent1:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 10px hsl(var(--accent1)), 0 0 20px hsl(var(--accent1) / 0.7), 0 0 30px hsl(var(--accent1) / 0.5);
-    border-color: hsl(var(--accent1));
-  }
-   .neon-glow-accent2 {
-    transition: box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
-    border: 1px solid hsl(var(--accent2) / 0.5);
-  }
-  .neon-glow-accent2:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 10px hsl(var(--accent2)), 0 0 20px hsl(var(--accent2) / 0.7), 0 0 30px hsl(var(--accent2) / 0.5);
-    border-color: hsl(var(--accent2));
-  }
-
-  /* For button specific glow */
-  .button-neon-glow {
-    position: relative;
-    overflow: hidden;
-    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  }
-  .button-neon-glow::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300%;
-    height: 300%;
-    background: conic-gradient(
-      transparent,
-      hsl(var(--accent1) / 0.5), 
-      hsl(var(--accent2) / 0.5),
-      transparent 30%
-    );
-    transform-origin: center center;
-    transform: translate(-50%, -50%) rotate(0deg);
-    animation: spin 4s linear infinite paused;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-  }
-  .button-neon-glow:hover::before {
-    animation-play-state: running;
-    opacity: 1;
-  }
-  .button-neon-glow span { /* Ensure text is above glow */
-    position: relative;
-    z-index: 1;
-  }
-
-  @keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-  }
+  /* Removed text-shadow and neon-glow utilities */
+  /* Removed bg-gradient-animation and its keyframes */
+  /* Removed button-neon-glow and its keyframes/animation */
 }

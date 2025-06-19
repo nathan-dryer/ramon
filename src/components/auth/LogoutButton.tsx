@@ -1,3 +1,4 @@
+
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -13,8 +14,8 @@ export function LogoutButton() {
 
   return (
     <form action={logoutAction}>
-      <Button type="submit" variant="ghost" size="sm" className="text-muted-foreground hover:text-accent1-DEFAULT hover:bg-accent1/10">
-        <LogOut className="mr-2 h-4 w-4" />
+      <Button type="submit" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
+        <LogOut className="mr-1.5 h-4 w-4" />
         Logout
       </Button>
     </form>

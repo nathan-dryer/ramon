@@ -15,6 +15,7 @@ const userSubmissions: ScrapbookItemData[] = [
     content: "Ramon my man! Heard it's the big 5-0. Get ready for an epic night, the tunes will be legendary. See you on the dance floor! 🔥🎧",
     timestamp: '2024-07-10T10:00:00Z',
     accentColor: 'accent1',
+    pinned: false,
   },
   {
     id: 'msg2',
@@ -24,6 +25,7 @@ const userSubmissions: ScrapbookItemData[] = [
     content: "Happy 50th, Ramon! May your energy never fade and your glowsticks always shine bright. We're bringing the good vibes and neon paint! 🎉✨",
     timestamp: '2024-07-11T14:30:00Z',
     accentColor: 'accent2',
+    pinned: false,
   },
 ];
 
@@ -37,7 +39,8 @@ const hypeReelPhotos: ScrapbookItemData[] = [
     content: 'https://placehold.co/600x400.png',
     timestamp: '2024-07-01T00:00:00Z',
     accentColor: 'accent2',
-    dataAiHint: 'festival crowd'
+    dataAiHint: 'festival crowd',
+    pinned: true, // Example of a pinned item
   },
   {
     id: 'photo2_hype',
@@ -47,7 +50,8 @@ const hypeReelPhotos: ScrapbookItemData[] = [
     content: 'https://placehold.co/600x450.png',
     timestamp: '2024-07-01T00:01:00Z',
     accentColor: 'accent1',
-    dataAiHint: 'dj turntables'
+    dataAiHint: 'dj turntables',
+    pinned: false,
   },
    {
     id: 'photo3_hype',
@@ -57,7 +61,8 @@ const hypeReelPhotos: ScrapbookItemData[] = [
     content: 'https://placehold.co/500x700.png',
     timestamp: '2024-07-01T00:02:00Z',
     accentColor: 'accent2',
-    dataAiHint: 'beach sunrise'
+    dataAiHint: 'beach sunrise',
+    pinned: false,
   },
 ];
 
@@ -76,7 +81,6 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
     return { error: 'Message or photo caption cannot exceed 1000 characters.' };
   }
   
-  // Only enforce min length for message if it's a message-only post and message is not empty
   if (!photoDataUri && message && message.length > 0 && message.length < 5) {
     return { error: 'Message must be at least 5 characters long.' };
   }
@@ -92,46 +96,52 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
     newItem = {
       id: `userphoto-${Date.now().toString()}`,
       type: 'photo',
-      content: photoDataUri, // The data URI
+      content: photoDataUri, 
       title: title || 'A new photo!',
-      description: message || undefined, // Message from textarea becomes description for photo
-      contributor: contributor || 'Anonymous Raver',
+      description: message || undefined, 
+      contributor: contributor || 'Anonymous Guest',
       timestamp: new Date().toISOString(),
       accentColor: Math.random() > 0.5 ? 'accent1' : 'accent2',
+      pinned: false,
     };
-  } else { // Message only
+  } else { 
     newItem = {
       id: `usermsg-${Date.now().toString()}`,
       type: 'message',
-      content: message, // The text message
+      content: message, 
       title: title || 'A new message!',
-      // no description for message-only items
-      contributor: contributor || 'Anonymous Raver',
+      contributor: contributor || 'Anonymous Guest',
       timestamp: new Date().toISOString(),
       accentColor: Math.random() > 0.5 ? 'accent1' : 'accent2',
+      pinned: false,
     };
   }
 
-  userSubmissions.unshift(newItem); // Add to the beginning of user submissions
+  userSubmissions.unshift(newItem); 
   
   revalidatePath('/scrapbook');
+  revalidatePath('/admin/videos'); // Also revalidate admin if it shows all items
 
   return { success: 'Your submission has been added!', item: newItem };
 }
 
 export async function getGuestbookMessages(): Promise<ScrapbookItemData[]> {
-  // This function now effectively returns all user submissions (messages and photos)
   return userSubmissions;
 }
 
 export async function getScrapbookItems(): Promise<ScrapbookItemData[]> {
-  const userSubmittedItems = await getGuestbookMessages(); // Renamed for clarity
+  const userSubmittedItems = await getGuestbookMessages(); 
   const adminVideos = await getAdminVideos();
   
-  // Combine all items and sort by timestamp descending (newest first)
-  // HypeReelPhotos are static curated content, userSubmissions are dynamic
   const allItems = [...userSubmittedItems, ...hypeReelPhotos, ...adminVideos];
-  allItems.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
+  
+  allItems.sort((a, b) => {
+    // Pinned items first
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    // Then sort by timestamp descending (newest first)
+    return new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime();
+  });
   
   return allItems;
 }
