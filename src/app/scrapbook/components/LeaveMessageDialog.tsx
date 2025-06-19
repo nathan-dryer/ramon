@@ -1,43 +1,28 @@
-
 'use client';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
 import { LeaveMessageForm } from './LeaveMessageForm';
-import { MessageCirclePlus, X } from 'lucide-react';
-import { useState } from 'react';
+import { X } from 'lucide-react';
 
 interface LeaveMessageDialogProps {
-  className?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function LeaveMessageDialog({ className }: LeaveMessageDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
+export function LeaveMessageDialog({ open, onOpenChange }: LeaveMessageDialogProps) {
   const handleFormSuccess = () => {
-    setIsOpen(false); 
+    onOpenChange(false); 
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button 
-          variant="default" 
-          size="lg" 
-          className={`bg-primary hover:bg-primary/90 text-primary-foreground shadow-md ${className}`}
-        >
-          <MessageCirclePlus className="mr-2 h-5 w-5 md:h-6 md:w-6" />
-          <span>Leave a Message / Photo!</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[90vw] md:max-w-[70vw] lg:max-w-[50vw] xl:max-w-[40vw] bg-card/95 backdrop-blur-md border-primary/50 p-0 rounded-lg">
         <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle className="text-2xl text-primary">Share Your Thoughts for Ramon!</DialogTitle>

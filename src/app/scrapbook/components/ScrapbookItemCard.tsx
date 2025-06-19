@@ -42,6 +42,7 @@ export function ScrapbookItemCard({ item }: ScrapbookItemCardProps) {
                     src={item.content}
                     alt={item.title || 'Scrapbook photo'}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                     className="object-cover transition-transform duration-300 group-hover/photo:scale-105"
                     data-ai-hint={item.dataAiHint || "party celebration"} />
                   <div className="absolute inset-0 bg-black/30 group-hover/photo:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover/photo:opacity-100">

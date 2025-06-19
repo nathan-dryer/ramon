@@ -2,77 +2,81 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-background text-foreground;
-  font-family: var(--font-alegreya), serif; /* Default body font */
-}
-
 @layer base {
   :root {
-    /* Modern Minimalist Theme */
-    --background: 40 33% 97%; /* #F8F7F4 Off-white */
-    --foreground: 0 0% 20%;   /* #333333 Charcoal grey */
+    --background: 0 0% 100%; /* white for animated background base */
+    --foreground: 0 0% 20%; /* charcoal grey #333333 */
 
-    --card: 40 20% 94%; 
-    --card-foreground: 0 0% 20%;
+    --card: 30 100% 97%; /* off-white for cards */
+    --card-foreground: 0 0% 20%; /* charcoal text on cards */
 
-    --popover: 40 20% 93%;
-    --popover-foreground: 0 0% 20%;
+    --popover: 30 100% 97%; /* off-white for popovers */
+    --popover-foreground: 0 0% 20%; /* charcoal text on popovers */
 
-    --primary: 325 79% 48%; /* #E01A7D Magenta */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 329 74% 49%; /* magenta #E01A7D - for components */
+    --primary-foreground: 0 0% 100%; /* white for magenta button text */
 
-    --secondary: 0 0% 90%; 
-    --secondary-foreground: 0 0% 20%; 
+    --secondary: 0 0% 93%; /* light grey for secondary elements */
+    --secondary-foreground: 0 0% 20%; /* charcoal for secondary text */
 
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 45%; /* Slightly darker for better contrast on muted bg */
+    --muted: 0 0% 93%; /* light grey for muted elements */
+    --muted-foreground: 0 0% 40%; /* darker grey for muted text */
 
-    --accent1: 325 79% 48%; /* #E01A7D Magenta */
-    --accent1-foreground: 0 0% 100%; /* White */
-    
-    --accent2: 47 100% 50%; /* #FFC700 Gold */
-    --accent2-foreground: 0 0% 10%; /* Very dark grey/black for contrast on gold */
+    /* Magenta Accent for components */
+    --accent1: 329 74% 49%; /* magenta #E01A7D */
+    --accent1-foreground: 0 0% 100%; /* white */
 
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 98%;
+    /* Gold Accent for components */
+    --accent2: 47 100% 50%; /* gold #FFC700 */
+    --accent2-foreground: 0 0% 20%; /* charcoal text for gold accent */
 
-    --border: 0 0% 85%;
-    --input: 0 0% 95%;
-    --ring: 325 79% 48%; /* Magenta for focus rings */
-    
+    --destructive: 0 84% 60%; /* standard destructive red */
+    --destructive-foreground: 0 0% 100%; /* white */
+
+    --border: 0 0% 85%; /* lighter grey for borders */
+    --input: 0 0% 93%; /* light grey for inputs */
+    --ring: 329 74% 49%; /* magenta for focus rings */
+
     --radius: 0.5rem;
+
+    /* Colors for the animated background specifically */
+    --magenta: 300 100% 50%; /* Original magenta for animation */
+    --light-pink: 300 100% 95%; /* Original light pink for animation */
   }
 
-  .dark { 
-    /* For potential future dark mode variant, keep variables for consistency */
-    --background: 0 0% 10%; 
-    --foreground: 0 0% 95%;
+  .dark {
+    --background: 0 0% 10%; /* Very dark grey for animated background base in dark mode */
+    --foreground: 0 0% 95%; /* Near white text */
 
-    --card: 0 0% 15%;
+    --card: 0 0% 12%; /* Slightly lighter dark grey for cards */
     --card-foreground: 0 0% 95%;
 
     --popover: 0 0% 12%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 325 79% 55%; /* Slightly lighter Magenta for dark mode */
-    --primary-foreground: 0 0% 10%;
+    --primary: 329 74% 59%; /* Brighter magenta for dark mode components */
+    --primary-foreground: 0 0% 10%; 
 
-    --secondary: 0 0% 25%;
-    --secondary-foreground: 0 0% 90%; 
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent1: 325 79% 55%; 
-    --accent1-foreground: 0 0% 10%; 
-    
-    --accent2: 47 100% 55%; /* Slightly lighter Gold for dark mode */
+    --accent1: 329 74% 59%; /* Brighter magenta */
+    --accent1-foreground: 0 0% 10%;
+    --accent2: 47 100% 60%; /* Brighter gold */
     --accent2-foreground: 0 0% 10%;
 
-    --border: 0 0% 30%;
-    --input: 0 0% 28%;
-    --ring: 325 79% 55%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 18%;
+    --ring: 329 74% 59%;
+    
+    /* Dark mode variants for animated background colors if desired, or they can use light mode's */
+    /* For now, animation colors remain consistent for dark/light as per original setup */
   }
 }
 
@@ -80,16 +84,22 @@ body {
   * {
     @apply border-border;
   }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-headline font-bold;
+  body {
+    @apply text-foreground;
+    background: linear-gradient(-45deg, hsl(var(--background)), hsl(var(--light-pink)), hsl(var(--magenta)));
+    background-size: 400% 400%;
+    animation: wave 15s ease-in-out infinite;
   }
 }
 
-@layer utilities {
-  /* Subtle hover effects - can be applied with Tailwind classes directly */
-  /* Example: hover:shadow-md hover:scale-[1.02] transition-all */
-
-  /* Removed text-shadow and neon-glow utilities */
-  /* Removed bg-gradient-animation and its keyframes */
-  /* Removed button-neon-glow and its keyframes/animation */
+@keyframes wave {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }

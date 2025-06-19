@@ -4,6 +4,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AUTH_COOKIE_NAME, APP_PASSWORD, AUTH_COOKIE_VALUE } from '@/lib/authConstants';
+import { isPasswordEnabled } from '@/lib/password-state';
 
 // Define the state type for useFormState
 interface LoginFormState {
@@ -11,9 +12,9 @@ interface LoginFormState {
 }
 
 export async function login(prevState: LoginFormState, formData: FormData): Promise<LoginFormState> {
-  const password = formData.get('password') as string;
+  const passwordRequired = await isPasswordEnabled();
 
-  if (password === APP_PASSWORD) {
+  if (!passwordRequired) {
     cookies().set(AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -21,7 +22,24 @@ export async function login(prevState: LoginFormState, formData: FormData): Prom
       path: '/',
       sameSite: 'lax',
     });
-    redirect('/scrapbook'); // Redirect will be caught by Next.js, no explicit return needed after it for success
+    redirect('/scrapbook');
+  }
+
+  const password = formData.get('password');
+
+  if (typeof password !== 'string' || password.trim() === '') {
+    return { error: 'Password is required.' };
+  }
+
+  if (password.toLowerCase() === APP_PASSWORD.toLowerCase()) {
+    cookies().set(AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: '/',
+      sameSite: 'lax',
+    });
+    redirect('/scrapbook');
   } else {
     return { error: 'Invalid password. Please try again.' };
   }

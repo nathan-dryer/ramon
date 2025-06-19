@@ -1,24 +1,33 @@
 
 import { LoginForm } from './LoginForm';
-import { PartyPopper } from 'lucide-react'; // Removed Disc3 as it might not fit the minimal style
+import { isPasswordEnabled } from '@/lib/password-state';
+import { AdminIcon } from '@/components/auth/AdminIcon';
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const passwordEnabled = await isPasswordEnabled();
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
-      {/* Removed absolute positioned Disc3 icons */}
-      <div className="text-center mb-12 relative">
-        <PartyPopper className="mx-auto h-16 w-16 md:h-20 md:w-20 text-primary mb-4" />
-        <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-2">
-          Ramon's 50th Celebration!
-        </h1>
-        <p className="font-body text-lg sm:text-xl text-muted-foreground">
-          An exclusive digital scrapbook experience.
-        </p>
+    <main className="min-h-screen text-slate-800">
+      <AdminIcon />
+      <div
+        className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8"
+        // Removed inline backgroundImage style to inherit global background
+      >
+        <div className="text-center mb-4 md:mb-6">
+          <h1 className="font-headline text-6xl md:text-8xl font-bold text-slate-900">
+            Ramon's 50th Jubilee
+          </h1>
+          <p className="font-body text-2xl md:text-3xl text-slate-600 mt-4 max-w-2xl mx-auto">
+            <span className="transition-all hover:text-slate-900 hover:tracking-wide">
+              Bongga Kaayo! Let's Celebrate!
+            </span>
+          </p>
+        </div>
+
+        <div className="w-full max-w-sm">
+          <LoginForm passwordEnabled={passwordEnabled} />
+        </div>
       </div>
-      <LoginForm />
-      <footer className="absolute bottom-0 py-6 text-center text-sm text-muted-foreground font-body">
-        Enter the celebration.
-      </footer>
-    </div>
+    </main>
   );
 }
