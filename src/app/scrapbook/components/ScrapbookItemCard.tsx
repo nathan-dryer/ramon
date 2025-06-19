@@ -36,32 +36,40 @@ export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
   };
 
   const getItemTextContent = () => {
-    let text = item.title || '';
+    let text = item.title || "Ramon's 50th Celebration!";
     if (item.type === 'message' && item.content) {
-      text += (text ? ' - ' : '') + item.content.substring(0, 100) + (item.content.length > 100 ? '...' : '');
+      text = `${item.title ? item.title + " - " : ""}Check out this message for Ramon: ${item.content.substring(0, 150)}${item.content.length > 150 ? '...' : ''}`;
     } else if (item.type === 'photo' && item.description) {
-      text += (text ? ' - ' : '') + item.description.substring(0, 100) + (item.description.length > 100 ? '...' : '');
+       text = `${item.title ? item.title + " - " : ""}Check out this photo for Ramon: ${item.description.substring(0, 150)}${item.description.length > 150 ? '...' : ''}`;
+    } else if (item.type === 'photo') {
+      text = `${item.title ? item.title + " - " : ""}A cool photo from Ramon's 50th!`;
+    } else if (item.type === 'video') {
+      text = `${item.title ? item.title + " - " : ""}A special video message for Ramon's 50th!`;
     }
-    return text || "Check out this moment from Ramon's 50th Celebration!";
+    return text;
   }
 
   const handleShareFacebook = () => {
-    const siteUrl = window.location.origin + '/scrapbook';
-    const textToShare = getItemTextContent();
-    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(siteUrl)}&quote=${encodeURIComponent(textToShare)}`;
-    window.open(facebookShareUrl, '_blank', 'noopener,noreferrer');
+    if (typeof window !== 'undefined') {
+      const siteUrl = window.location.origin + '/scrapbook';
+      const textToShare = getItemTextContent();
+      const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(siteUrl)}&quote=${encodeURIComponent(textToShare)}`;
+      window.open(facebookShareUrl, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const handleCopyLink = () => {
-    const siteUrl = window.location.origin + '/scrapbook';
-    navigator.clipboard.writeText(siteUrl)
-      .then(() => {
-        toast({ title: "Link Copied!", description: "Scrapbook link copied to clipboard." });
-      })
-      .catch(err => {
-        console.error('Failed to copy link: ', err);
-        toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy link." });
-      });
+    if (typeof window !== 'undefined') {
+      const siteUrl = window.location.origin + '/scrapbook';
+      navigator.clipboard.writeText(siteUrl)
+        .then(() => {
+          toast({ title: "Link Copied!", description: "Scrapbook link copied to clipboard." });
+        })
+        .catch(err => {
+          console.error('Failed to copy link: ', err);
+          toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy link." });
+        });
+    }
   };
 
 
@@ -118,8 +126,7 @@ export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
             }
             if (modifiedIframe.includes('youtube.com/embed') && !modifiedIframe.includes('mute=1')) {
                 modifiedIframe = modifiedIframe.replace('?feature=oembed', '?feature=oembed&autoplay=1&mute=1');
-                 // Try to add enablejsapi=1 for YouTube if not present for autoplay control
-                if (!modifiedIframe.includes('enablejsapi=1')) {
+                 if (!modifiedIframe.includes('enablejsapi=1')) {
                     if (modifiedIframe.includes('?')) {
                         modifiedIframe = modifiedIframe.replace('?', '?enablejsapi=1&');
                     } else {
@@ -188,11 +195,11 @@ export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
                 <Share2 className="h-4 w-4 mr-1" /> Share
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-2 space-y-1">
-              <Button variant="outline" size="sm" onClick={handleShareFacebook} className="w-full justify-start">
+            <PopoverContent className="w-auto p-2 space-y-1 bg-card border-border shadow-md rounded-lg">
+              <Button variant="outline" size="sm" onClick={handleShareFacebook} className="w-full justify-start font-body hover:bg-accent hover:text-accent-foreground">
                 <Facebook className="h-4 w-4 mr-2 text-[#1877F2]" /> Facebook
               </Button>
-              <Button variant="outline" size="sm" onClick={handleCopyLink} className="w-full justify-start">
+              <Button variant="outline" size="sm" onClick={handleCopyLink} className="w-full justify-start font-body hover:bg-accent hover:text-accent-foreground">
                 <Copy className="h-4 w-4 mr-2" /> Copy Link
               </Button>
             </PopoverContent>

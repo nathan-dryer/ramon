@@ -28,7 +28,7 @@ export function LeaveMessageDialog({ open, onOpenChange }: LeaveMessageDialogPro
         <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle className="font-headline text-2xl text-primary">Post a Bday Message</DialogTitle>
           <DialogDescription className="text-muted-foreground font-body">
-            Drop a birthday wish, a funny memory, or a cool photo. Let's fill this scrapbook!
+            Drop a birthday wish, a funny memory, or a cool photo. Let's fill this scrapbook! AI will help enhance your message.
           </DialogDescription>
         </DialogHeader>
         <div className="p-6 pt-4 max-h-[70vh] overflow-y-auto">

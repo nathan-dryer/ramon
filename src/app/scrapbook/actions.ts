@@ -4,6 +4,7 @@
 import type { ScrapbookItemData } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { getAdminVideos, deleteAdminVideo as actualDeleteAdminVideo, togglePinAdminVideo } from '@/app/admin/videos/actions';
+import { enhanceScrapbookMessage, type EnhanceScrapbookMessageInput } from '@/ai/flows/enhance-scrapbook-message-flow';
 
 // Mock "database" for guestbook messages and user-uploaded photos
 const userSubmissions: ScrapbookItemData[] = [
@@ -11,8 +12,8 @@ const userSubmissions: ScrapbookItemData[] = [
     id: 'msg1',
     type: 'message',
     contributor: 'DJ RaveDave',
-    title: 'Can\'t wait to drop some beats!',
-    content: "Ramon my man! Heard it's the big 5-0. Get ready for an epic night, the tunes will be legendary. See you on the dance floor! 🔥🎧",
+    title: 'Can\'t wait to drop some beats! 🎧',
+    content: "Ramon my man! Heard it's the big 5-0. Get ready for an epic night, the tunes will be legendary. See you on the dance floor! 🔥",
     timestamp: '2024-07-10T10:00:00Z',
     accentColor: 'accent1',
     pinned: false,
@@ -21,8 +22,8 @@ const userSubmissions: ScrapbookItemData[] = [
     id: 'msg2',
     type: 'message',
     contributor: 'The Glowstick Crew',
-    title: 'To many more raves!',
-    content: "Happy 50th, Ramon! May your energy never fade and your glowsticks always shine bright. We're bringing the good vibes and neon paint! 🎉✨",
+    title: 'To many more raves! ✨',
+    content: "Happy 50th, Ramon! May your energy never fade and your glowsticks always shine bright. We're bringing the good vibes and neon paint! 🎉",
     timestamp: '2024-07-11T14:30:00Z',
     accentColor: 'accent2',
     pinned: false,
@@ -69,24 +70,44 @@ const hypeReelPhotos: ScrapbookItemData[] = [
 
 export async function addMessageSubmission(prevState: any, formData: FormData) {
   const contributor = formData.get('contributor') as string;
-  const title = formData.get('title') as string | null;
-  const message = formData.get('message') as string; 
+  const userTitle = formData.get('title') as string | null;
+  const userMessage = formData.get('message') as string; 
   const photoDataUri = formData.get('photoDataUri') as string | null; 
 
-  if (!photoDataUri && !message) {
+  if (!photoDataUri && !userMessage) {
     return { error: 'Please provide either a message or upload a photo.' };
   }
 
-  if (message && message.length > 1000) {
+  if (userMessage && userMessage.length > 1000) {
     return { error: 'Message or photo caption cannot exceed 1000 characters.' };
   }
   
-  if (!photoDataUri && message && message.length > 0 && message.length < 5) {
+  if (!photoDataUri && userMessage && userMessage.length > 0 && userMessage.length < 5) {
     return { error: 'Message must be at least 5 characters long.' };
   }
   
   if (photoDataUri && !photoDataUri.startsWith('data:image/')) {
     return { error: 'Invalid photo data format.' };
+  }
+
+  let enhancedTitle = userTitle || 'A heartfelt submission!';
+  let enhancedMessage = userMessage;
+  let suggestedAccentColor: 'accent1' | 'accent2' = Math.random() > 0.5 ? 'accent1' : 'accent2'; // Default random
+
+  if (userMessage) {
+    try {
+      const aiInput: EnhanceScrapbookMessageInput = {
+        originalMessage: userMessage,
+        originalTitle: userTitle || undefined,
+      };
+      const aiResponse = await enhanceScrapbookMessage(aiInput);
+      enhancedTitle = aiResponse.enhancedTitle;
+      enhancedMessage = aiResponse.enhancedMessage;
+      suggestedAccentColor = aiResponse.suggestedAccentColor;
+    } catch (aiError) {
+      console.error("AI message enhancement failed:", aiError);
+      // Fallback to user's original content or defaults if AI fails
+    }
   }
 
 
@@ -97,22 +118,22 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
       id: `userphoto-${Date.now().toString()}`,
       type: 'photo',
       content: photoDataUri, 
-      title: title || 'A new photo!',
-      description: message || undefined, 
+      title: enhancedTitle, // Use AI enhanced title if message was also present, else user title or default for photo
+      description: enhancedMessage || undefined, // Use AI enhanced message as description if available
       contributor: contributor || 'Anonymous Guest',
       timestamp: new Date().toISOString(),
-      accentColor: Math.random() > 0.5 ? 'accent1' : 'accent2',
+      accentColor: suggestedAccentColor,
       pinned: false,
     };
   } else { 
     newItem = {
       id: `usermsg-${Date.now().toString()}`,
       type: 'message',
-      content: message, 
-      title: title || 'A new message!',
+      content: enhancedMessage, 
+      title: enhancedTitle,
       contributor: contributor || 'Anonymous Guest',
       timestamp: new Date().toISOString(),
-      accentColor: Math.random() > 0.5 ? 'accent1' : 'accent2',
+      accentColor: suggestedAccentColor,
       pinned: false,
     };
   }
@@ -120,29 +141,25 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
   userSubmissions.unshift(newItem); 
   
   revalidatePath('/scrapbook');
-  revalidatePath('/admin/videos'); // In case an admin video was pinned/unpinned from scrapbook
+  revalidatePath('/admin/videos'); 
 
   return { success: 'Your submission has been added!', item: newItem };
 }
 
 export async function getGuestbookMessages(): Promise<ScrapbookItemData[]> {
-  // This function might not be strictly needed if getScrapbookItems covers all cases
   return [...userSubmissions];
 }
 
 export async function getScrapbookItems(): Promise<ScrapbookItemData[]> {
-  // Fetch all sources of items
   const userSubmittedItems = [...userSubmissions]; 
   const adminVideos = await getAdminVideos();
   const curatedPhotos = [...hypeReelPhotos];
   
   const allItems = [...userSubmittedItems, ...curatedPhotos, ...adminVideos];
   
-  // Sort: Pinned items first, then by timestamp descending
   allItems.sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
-    // Fallback to 0 if timestamp is undefined to prevent crashes, though ideally all items have timestamps
     const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
     const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
     return timeB - timeA;
@@ -152,7 +169,6 @@ export async function getScrapbookItems(): Promise<ScrapbookItemData[]> {
 }
 
 export async function togglePinScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
-  // Try user submissions
   const userItemIndex = userSubmissions.findIndex(item => item.id === itemId);
   if (userItemIndex !== -1) {
     userSubmissions[userItemIndex].pinned = !userSubmissions[userItemIndex].pinned;
@@ -160,7 +176,6 @@ export async function togglePinScrapbookItem(itemId: string, prevState?: any, fo
     return { success: `Item ${userSubmissions[userItemIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
   }
 
-  // Try hype reel photos
   const hypeReelItemIndex = hypeReelPhotos.findIndex(item => item.id === itemId);
   if (hypeReelItemIndex !== -1) {
     hypeReelPhotos[hypeReelItemIndex].pinned = !hypeReelPhotos[hypeReelItemIndex].pinned;
@@ -168,11 +183,9 @@ export async function togglePinScrapbookItem(itemId: string, prevState?: any, fo
     return { success: `Item ${hypeReelPhotos[hypeReelItemIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
   }
 
-  // Try admin videos by calling its specific togglePin action
-  // togglePinAdminVideo is expected to handle its own revalidation and error/success reporting.
   const adminVideoResult = await togglePinAdminVideo(itemId, null, formData || new FormData()); 
-  if (adminVideoResult.success || adminVideoResult.error) { // Check if the action was relevant (found the video)
-    revalidatePath('/scrapbook'); // Ensure scrapbook updates if an admin video's pin status changed
+  if (adminVideoResult.success || adminVideoResult.error) { 
+    revalidatePath('/scrapbook'); 
     return adminVideoResult;
   }
   
@@ -198,12 +211,10 @@ export async function deleteScrapbookItem(itemId: string, prevState?: any, formD
     revalidatePath('/scrapbook');
     return { success: 'Hype reel photo deleted successfully.' };
   }
-
-  // Try deleting as an admin video
-  // actualDeleteAdminVideo (deleteAdminVideo from admin actions) handles its own revalidation
+  
   const adminDeleteResult = await actualDeleteAdminVideo(itemId);
-  if (adminDeleteResult.success || adminDeleteResult.error) { // Check if the action was relevant
-     revalidatePath('/scrapbook'); // Ensure scrapbook updates if an admin video was deleted
+  if (adminDeleteResult.success || adminDeleteResult.error) { 
+     revalidatePath('/scrapbook');
     return adminDeleteResult;
   }
   

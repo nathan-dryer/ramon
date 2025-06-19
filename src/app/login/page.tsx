@@ -15,10 +15,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Ramon's 50th Jubilee! Login to Celebrate",
     description: "It's time for Ramon's Golden Jubilee! Access the exclusive digital scrapbook, share your wishes, and be part of this milestone celebration.",
-    url: '/', // Assuming login page is the root or adjust as needed. Base URL will be prepended.
+    // For NEXT_PUBLIC_BASE_URL, ensure it's set in your environment for absolute URLs in production
+    // url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/login`, 
     images: [
       {
-        url: 'https://placehold.co/1200x630.png?text=Ramon%27s+50th+Jubilee%21', // Replace with an actual engaging image
+        url: `https://placehold.co/1200x630.png?text=Ramon%27s+50th+Jubilee%21`,
         width: 1200,
         height: 630,
         alt: "Ramon's 50th Jubilee Celebration Login Page",
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Ramon's 50th Jubilee! Login",
     description: "Join the celebration for Ramon's 50th! Log in to share your messages and photos.",
-    images: ['https://placehold.co/1200x630.png?text=Ramon%27s+50th+Jubilee%21'], // Replace with an actual engaging image
+    images: ['https://placehold.co/1200x630.png?text=Ramon%27s+50th+Jubilee%21'], 
   },
 };
 
