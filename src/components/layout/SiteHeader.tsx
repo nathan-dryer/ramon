@@ -22,3 +22,4 @@ export function SiteHeader({ isAdmin = false }: SiteHeaderProps) {
     </header>
   );
 }
+
