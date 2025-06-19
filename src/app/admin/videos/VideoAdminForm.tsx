@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, CheckCircle, UploadCloud } from 'lucide-react';
 import { useActionState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -43,7 +44,7 @@ export function VideoAdminForm() {
       toast({
         title: "Success",
         description: state.success,
-        action: <CheckCircle className="text-green-500" />, // This green might need to be themed if too off
+        action: <CheckCircle className="text-green-500" />, 
       });
       formRef.current?.reset(); 
     }
@@ -66,6 +67,12 @@ export function VideoAdminForm() {
       <div>
         <Label htmlFor="contributor" className="font-body text-foreground">Contributor Name (Optional)</Label>
         <Input id="contributor" name="contributor" className="mt-1 bg-input border-border focus:ring-primary text-foreground" placeholder="e.g., Site Admin or Family Friend"/>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Checkbox id="autoplay" name="autoplay" />
+        <Label htmlFor="autoplay" className="font-body text-sm text-foreground">
+          Autoplay video (muted by default)
+        </Label>
       </div>
       <SubmitButton />
     </form>

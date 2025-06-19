@@ -3,7 +3,7 @@
 
 import type { ScrapbookItemData } from '@/types';
 import { revalidatePath } from 'next/cache';
-import { getAdminVideos } from '@/app/admin/videos/actions';
+import { getAdminVideos, videoSubmissions as adminVideoStore, deleteAdminVideo as actualDeleteAdminVideo } from '@/app/admin/videos/actions';
 
 // Mock "database" for guestbook messages and user-uploaded photos
 const userSubmissions: ScrapbookItemData[] = [
@@ -40,7 +40,7 @@ const hypeReelPhotos: ScrapbookItemData[] = [
     timestamp: '2024-07-01T00:00:00Z',
     accentColor: 'accent2',
     dataAiHint: 'festival crowd',
-    pinned: true, // Example of a pinned item
+    pinned: true, 
   },
   {
     id: 'photo2_hype',
@@ -70,8 +70,8 @@ const hypeReelPhotos: ScrapbookItemData[] = [
 export async function addMessageSubmission(prevState: any, formData: FormData) {
   const contributor = formData.get('contributor') as string;
   const title = formData.get('title') as string | null;
-  const message = formData.get('message') as string; // This is the text from textarea (message or caption)
-  const photoDataUri = formData.get('photoDataUri') as string | null; // This is the base64 data URI from hidden input
+  const message = formData.get('message') as string; 
+  const photoDataUri = formData.get('photoDataUri') as string | null; 
 
   if (!photoDataUri && !message) {
     return { error: 'Please provide either a message or upload a photo.' };
@@ -120,7 +120,7 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
   userSubmissions.unshift(newItem); 
   
   revalidatePath('/scrapbook');
-  revalidatePath('/admin/videos'); // Also revalidate admin if it shows all items
+  revalidatePath('/admin/videos'); 
 
   return { success: 'Your submission has been added!', item: newItem };
 }
@@ -131,17 +131,75 @@ export async function getGuestbookMessages(): Promise<ScrapbookItemData[]> {
 
 export async function getScrapbookItems(): Promise<ScrapbookItemData[]> {
   const userSubmittedItems = await getGuestbookMessages(); 
-  const adminVideos = await getAdminVideos();
+  const adminVideos = await getAdminVideos(); // Fetches from admin/videos/actions.ts
   
   const allItems = [...userSubmittedItems, ...hypeReelPhotos, ...adminVideos];
   
   allItems.sort((a, b) => {
-    // Pinned items first
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
-    // Then sort by timestamp descending (newest first)
     return new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime();
   });
   
   return allItems;
+}
+
+export async function togglePinScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
+  let itemFound = false;
+  let currentPinnedStatus: boolean | undefined = false;
+
+  const collections = [userSubmissions, hypeReelPhotos, adminVideoStore];
+  for (const collection of collections) {
+    const itemIndex = collection.findIndex(item => item.id === itemId);
+    if (itemIndex !== -1) {
+      currentPinnedStatus = collection[itemIndex].pinned;
+      collection[itemIndex].pinned = !collection[itemIndex].pinned;
+      itemFound = true;
+      break;
+    }
+  }
+
+  if (!itemFound) {
+    return { error: 'Item not found.' };
+  }
+
+  revalidatePath('/scrapbook');
+  revalidatePath('/admin/videos'); // In case an admin video was pinned/unpinned
+
+  return { success: `Item ${!currentPinnedStatus ? 'pinned' : 'unpinned'} successfully.` };
+}
+
+export async function deleteScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
+  let itemFoundAndDeleted = false;
+
+  const findAndSplice = (collection: ScrapbookItemData[]) => {
+    const index = collection.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+      collection.splice(index, 1);
+      return true;
+    }
+    return false;
+  };
+
+  if (findAndSplice(userSubmissions) || findAndSplice(hypeReelPhotos)) {
+    itemFoundAndDeleted = true;
+  } else {
+    // Check if it's an admin video and use its specific delete function
+    const adminVideoIndex = adminVideoStore.findIndex(v => v.id === itemId);
+    if (adminVideoIndex !== -1) {
+      await actualDeleteAdminVideo(itemId); // This already revalidates paths
+      itemFoundAndDeleted = true; 
+      // actualDeleteAdminVideo handles revalidation, so we can return early or skip double revalidation
+      return { success: 'Admin video deleted successfully.' };
+    }
+  }
+
+  if (!itemFoundAndDeleted) {
+    return { error: 'Item not found.' };
+  }
+
+  revalidatePath('/scrapbook');
+  revalidatePath('/admin/videos'); 
+
+  return { success: 'Item deleted successfully.' };
 }

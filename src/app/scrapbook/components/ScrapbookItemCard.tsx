@@ -7,12 +7,14 @@ import Image from 'next/image';
 import { MessageSquare, Camera, Video, UserCircle, CalendarDays, Zap, FileText, Pin } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { AdminItemActions } from './AdminItemActions'; // Import AdminItemActions
 
 interface ScrapbookItemCardProps {
   item: ScrapbookItemData;
+  isAdmin?: boolean;
 }
 
-export function ScrapbookItemCard({ item }: ScrapbookItemCardProps) {
+export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
   const iconColor = item.accentColor === 'accent1' ? 'text-accent1' : 'text-accent2';
   
   const getTypeIcon = () => {
@@ -69,12 +71,32 @@ export function ScrapbookItemCard({ item }: ScrapbookItemCardProps) {
         );
       case 'video':
         const commonVideoClasses = "aspect-video w-full rounded-md border";
+        const allowString = `autoplay ${item.autoplay ? 'autoplay;' : ''} fullscreen; picture-in-picture;`;
+        
         if (item.content.startsWith('<iframe')) {
-          return <div dangerouslySetInnerHTML={{ __html: item.content }} className={cn(commonVideoClasses, "overflow-hidden")} />;
+          // Attempt to inject autoplay and mute into existing iframe code. This is fragile.
+          let modifiedIframe = item.content;
+          if (item.autoplay) {
+            if (modifiedIframe.includes('allow=')) {
+              modifiedIframe = modifiedIframe.replace('allow="', `allow="autoplay; `);
+            } else {
+              modifiedIframe = modifiedIframe.replace('<iframe', `<iframe allow="autoplay"`);
+            }
+            if (modifiedIframe.includes('youtube.com/embed') && !modifiedIframe.includes('mute=1')) {
+                modifiedIframe = modifiedIframe.replace('?feature=oembed', '?feature=oembed&autoplay=1&mute=1');
+            }
+          }
+          return <div dangerouslySetInnerHTML={{ __html: modifiedIframe }} className={cn(commonVideoClasses, "overflow-hidden")} />;
         } else if (item.content.includes("youtube.com/embed") || item.content.includes("player.vimeo.com/video")) {
-           return <iframe src={item.content} className={commonVideoClasses} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen title={item.title || 'Scrapbook video'}></iframe>;
+           let src = item.content;
+           if (item.autoplay && src.includes('youtube.com/embed') && !src.includes('autoplay=1')) {
+             src += src.includes('?') ? '&autoplay=1&mute=1' : '?autoplay=1&mute=1';
+           } else if (item.autoplay && src.includes('player.vimeo.com/video') && !src.includes('autoplay=1')) {
+             src += src.includes('?') ? '&autoplay=1&muted=1' : '?autoplay=1&muted=1';
+           }
+           return <iframe src={src} className={commonVideoClasses} allow={allowString} allowFullScreen title={item.title || 'Scrapbook video'}></iframe>;
         } else if (item.content.match(/\.(mp4|webm|ogg)$/) !=null ) { 
-            return <video src={item.content} controls className={commonVideoClasses} title={item.title || 'Scrapbook video'} />;
+            return <video src={item.content} controls autoPlay={item.autoplay} muted={item.autoplay} className={commonVideoClasses} title={item.title || 'Scrapbook video'} />;
         }
         return <p className="font-body text-destructive">Unsupported video format: <span className="text-xs">{item.content.substring(0,100)}...</span></p>;
       default:
@@ -86,10 +108,11 @@ export function ScrapbookItemCard({ item }: ScrapbookItemCardProps) {
 
   return (
     <Card className={cn(
-        "h-full flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-card backdrop-blur-sm group",
-        "hover:scale-[1.02] hover:border-primary/50", // Subtle lift and scale
-        cardAccentColor // Keep accent border
+        "h-full flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-card backdrop-blur-sm group relative", // Added relative for admin actions positioning
+        "hover:scale-[1.02] hover:border-primary/50", 
+        cardAccentColor 
       )}>
+      {isAdmin && <AdminItemActions item={item} />}
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">

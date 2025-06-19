@@ -12,4 +12,5 @@ export interface ScrapbookItemData {
   accentColor?: 'accent1' | 'accent2'; // For item-specific accent (e.g., magenta or cyan)
   pinned?: boolean; // Added for pinning feature
   dataAiHint?: string; // For AI image search hint
+  autoplay?: boolean; // For videos, to enable autoplay
 }

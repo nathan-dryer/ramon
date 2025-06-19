@@ -5,12 +5,14 @@ import type { ScrapbookItemData } from '@/types';
 import { revalidatePath } from 'next/cache';
 
 // This is a mock "database". In a real app, use a proper database.
-const videoSubmissions: ScrapbookItemData[] = [];
+// Exporting for use in global scrapbook actions.
+export const videoSubmissions: ScrapbookItemData[] = [];
 
 export async function addVideoSubmission(prevState: any, formData: FormData) {
   const title = formData.get('title') as string;
   const videoUrl = formData.get('videoUrl') as string;
   const contributor = formData.get('contributor') as string | null;
+  const autoplay = formData.get('autoplay') === 'on';
 
   if (!title || !videoUrl) {
     return { error: 'Title and Video URL are required.' };
@@ -30,7 +32,8 @@ export async function addVideoSubmission(prevState: any, formData: FormData) {
     contributor: contributor || 'Site Admin',
     timestamp: new Date().toISOString(),
     accentColor: Math.random() > 0.5 ? 'accent1' : 'accent2',
-    pinned: false, // Initialize pinned to false
+    pinned: false,
+    autoplay: autoplay,
   };
 
   videoSubmissions.push(newVideo);
@@ -62,4 +65,19 @@ export async function togglePinAdminVideo(videoId: string, prevState: any, formD
   revalidatePath('/admin/videos');
 
   return { success: `Video ${videoSubmissions[videoIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
+}
+
+export async function deleteAdminVideo(videoId: string): Promise<{ success?: string; error?: string }> {
+  const videoIndex = videoSubmissions.findIndex(v => v.id === videoId);
+  if (videoIndex === -1) {
+    return { error: 'Video not found.' };
+  }
+
+  videoSubmissions.splice(videoIndex, 1);
+  console.log(`Video ${videoId} deleted.`);
+
+  revalidatePath('/scrapbook');
+  revalidatePath('/admin/videos');
+  
+  return { success: 'Video deleted successfully.' };
 }

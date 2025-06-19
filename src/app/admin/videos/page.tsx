@@ -6,8 +6,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { getAdminVideos } from './actions';
 import type { ScrapbookItemData } from '@/types';
 import { Separator } from '@/components/ui/separator';
-import { Video, ListVideo, Pin as PinIcon } from 'lucide-react';
-import { PinToggleButton } from './PinToggleButton'; // Import the new component
+import { Video, ListVideo, Pin as PinIcon, PlayCircle } from 'lucide-react';
+import { PinToggleButton } from './PinToggleButton';
 
 async function SubmittedVideosList() {
   const videos = await getAdminVideos();
@@ -27,6 +27,7 @@ async function SubmittedVideosList() {
                 <Video className="h-4 w-4 mr-2 text-primary"/>
                 <p className="font-body font-medium text-foreground truncate">{video.title}</p>
                 {video.pinned && <PinIcon className="h-4 w-4 ml-2 text-primary" aria-label="Pinned" />}
+                {video.autoplay && <PlayCircle className="h-4 w-4 ml-2 text-blue-500" aria-label="Autoplay enabled" title="Autoplay enabled" />}
               </div>
               <p className="font-body text-xs text-muted-foreground truncate " title={video.content}>URL/Embed: {video.content}</p>
               {video.contributor && <p className="font-body text-xs text-muted-foreground mt-0.5">By: {video.contributor}</p>}

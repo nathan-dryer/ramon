@@ -5,9 +5,11 @@ import { FloatingCTA } from './components/FloatingCTA';
 import { AdminIcon } from '@/components/auth/AdminIcon';
 import Link from 'next/link';
 import { PartyPopper } from 'lucide-react';
+import { isAdminAuthenticated } from '@/lib/adminAuth';
 
 export default async function ScrapbookPage() {
   const items = await getScrapbookItems();
+  const isAdmin = isAdminAuthenticated();
 
   return (
     <div className="flex flex-col min-h-screen"> 
@@ -31,7 +33,7 @@ export default async function ScrapbookPage() {
           </p>
         </div>
 
-        <ScrapbookGrid items={items} />
+        <ScrapbookGrid items={items} isAdmin={isAdmin} />
       </div>
       <FloatingCTA />
     </div>
