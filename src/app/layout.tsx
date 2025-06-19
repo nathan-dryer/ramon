@@ -21,13 +21,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Belleza&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased">
+      <body className="font-body antialiased bg-background text-foreground">
         <div className="relative min-h-screen flex flex-col">
           <div
             className="fixed inset-0 -z-10 bg-gradient-animation"
             aria-hidden="true"
           />
-          <main className="flex-grow flex flex-col">
+          <main className="flex-grow flex flex-col z-10">
             {children}
           </main>
           <Toaster />

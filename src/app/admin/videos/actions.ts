@@ -15,7 +15,6 @@ export async function addVideoSubmission(formData: FormData) {
     return { error: 'Title and Video URL are required.' };
   }
 
-  // Basic URL validation (very simplistic)
   if (!videoUrl.startsWith('http://') && !videoUrl.startsWith('https://') && !videoUrl.startsWith('<iframe')) {
      if (!videoUrl.includes('youtube.com/embed') && !videoUrl.includes('player.vimeo.com/video')) {
         return { error: 'Invalid video URL format. Please provide a valid embed URL or iframe code.' };
@@ -23,29 +22,24 @@ export async function addVideoSubmission(formData: FormData) {
   }
   
   const newVideo: ScrapbookItemData = {
-    id: Date.now().toString(), // simple unique ID
+    id: Date.now().toString(),
     type: 'video',
     title,
     content: videoUrl,
     contributor: contributor || 'Site Admin',
     timestamp: new Date().toISOString(),
-    accentColor: Math.random() > 0.5 ? 'magenta' : 'gold',
+    accentColor: Math.random() > 0.5 ? 'accent1' : 'accent2',
   };
 
   videoSubmissions.push(newVideo);
   console.log('New video added:', newVideo);
-  console.log('All videos:', videoSubmissions);
-
-  // Revalidate the scrapbook page to show new video (if it were displayed from this source)
+  
   revalidatePath('/scrapbook');
   revalidatePath('/admin/videos');
-
 
   return { success: 'Video added successfully!', video: newVideo };
 }
 
-export async function getAdminVideos() {
-  // In a real app, fetch from database.
-  // Returning the mock submissions for now to demonstrate.
+export async function getAdminVideos(): Promise<ScrapbookItemData[]> {
   return videoSubmissions;
 }

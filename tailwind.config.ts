@@ -37,13 +37,13 @@ export default {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
         },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+        accent1: { // Changed from accent
+          DEFAULT: 'hsl(var(--accent1))',
+          foreground: 'hsl(var(--accent1-foreground))',
         },
-        gold: {
-          DEFAULT: 'hsl(var(--gold))',
-          foreground: 'hsl(var(--gold-foreground))',
+        accent2: { // Changed from gold
+          DEFAULT: 'hsl(var(--accent2))',
+          foreground: 'hsl(var(--accent2-foreground))',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -99,11 +99,16 @@ export default {
           '75%': { backgroundPosition: '0% 100%' },
           '100%': { backgroundPosition: '0% 0%' },
         },
+        spin: {
+          '0%': { transform: 'translate(-50%, -50%) rotate(0deg)' },
+          '100%': { transform: 'translate(-50%, -50%) rotate(360deg)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        subtleGradient: 'subtleGradient 25s ease infinite',
+        subtleGradient: 'subtleGradient 20s ease infinite',
+        spin: 'spin 4s linear infinite',
       },
     },
   },

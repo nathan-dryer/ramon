@@ -1,22 +1,22 @@
+
 'use client';
 
 import { useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom'; // Added this import
 import { login } from './actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={pending}>
+    <Button type="submit" className="w-full bg-accent1-DEFAULT hover:bg-accent1-DEFAULT/90 text-accent1-foreground button-neon-glow" disabled={pending}>
       {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-      Enter Celebration
+      <span>Enter Celebration</span>
     </Button>
   );
 }
@@ -27,6 +27,8 @@ export function LoginForm() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    // formData is not used, so directly pass password for simplicity in this client-side handler.
+    // For server actions, you'd typically pass formData or use useFormState.
     const result = await login(password);
     if (result?.error) {
       toast({
@@ -38,9 +40,9 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-xl bg-card/90 backdrop-blur-sm">
+    <Card className="w-full max-w-md shadow-xl bg-card/80 backdrop-blur-sm border-border neon-glow-accent2">
       <CardHeader className="text-center">
-        <CardTitle className="font-headline text-3xl text-primary">Welcome!</CardTitle>
+        <CardTitle className="font-headline text-3xl text-foreground">Welcome!</CardTitle>
         <CardDescription className="font-body text-muted-foreground">
           Please enter the password to join Ramon's 50th Celebration.
         </CardDescription>
@@ -56,7 +58,7 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-background/70 border-border focus:ring-accent"
+              className="bg-input/50 border-border focus:ring-accent2-DEFAULT text-foreground"
               aria-describedby="password-hint"
             />
             <p id="password-hint" className="text-xs text-muted-foreground font-body">
