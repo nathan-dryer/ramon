@@ -4,10 +4,14 @@
 import type { ScrapbookItemData } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
-import { MessageSquare, Camera, Video, UserCircle, CalendarDays, Zap, FileText, Pin } from 'lucide-react';
+import { MessageSquare, Camera, Video, UserCircle, CalendarDays, Zap, FileText, Pin, Share2, Copy, Facebook } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { AdminItemActions } from './AdminItemActions'; // Import AdminItemActions
+import { AdminItemActions } from './AdminItemActions';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
 
 interface ScrapbookItemCardProps {
   item: ScrapbookItemData;
@@ -15,6 +19,7 @@ interface ScrapbookItemCardProps {
 }
 
 export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
+  const { toast } = useToast();
   const iconColor = item.accentColor === 'accent1' ? 'text-accent1' : 'text-accent2';
   
   const getTypeIcon = () => {
@@ -29,6 +34,36 @@ export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
         return <Zap className={cn('h-5 w-5 group-hover:animate-pulse', iconColor)} />;
     }
   };
+
+  const getItemTextContent = () => {
+    let text = item.title || '';
+    if (item.type === 'message' && item.content) {
+      text += (text ? ' - ' : '') + item.content.substring(0, 100) + (item.content.length > 100 ? '...' : '');
+    } else if (item.type === 'photo' && item.description) {
+      text += (text ? ' - ' : '') + item.description.substring(0, 100) + (item.description.length > 100 ? '...' : '');
+    }
+    return text || "Check out this moment from Ramon's 50th Celebration!";
+  }
+
+  const handleShareFacebook = () => {
+    const siteUrl = window.location.origin + '/scrapbook';
+    const textToShare = getItemTextContent();
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(siteUrl)}&quote=${encodeURIComponent(textToShare)}`;
+    window.open(facebookShareUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCopyLink = () => {
+    const siteUrl = window.location.origin + '/scrapbook';
+    navigator.clipboard.writeText(siteUrl)
+      .then(() => {
+        toast({ title: "Link Copied!", description: "Scrapbook link copied to clipboard." });
+      })
+      .catch(err => {
+        console.error('Failed to copy link: ', err);
+        toast({ variant: "destructive", title: "Copy Failed", description: "Could not copy link." });
+      });
+  };
+
 
   const renderContent = () => {
     switch (item.type) {
@@ -74,7 +109,6 @@ export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
         const allowString = `autoplay ${item.autoplay ? 'autoplay;' : ''} fullscreen; picture-in-picture;`;
         
         if (item.content.startsWith('<iframe')) {
-          // Attempt to inject autoplay and mute into existing iframe code. This is fragile.
           let modifiedIframe = item.content;
           if (item.autoplay) {
             if (modifiedIframe.includes('allow=')) {
@@ -84,15 +118,23 @@ export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
             }
             if (modifiedIframe.includes('youtube.com/embed') && !modifiedIframe.includes('mute=1')) {
                 modifiedIframe = modifiedIframe.replace('?feature=oembed', '?feature=oembed&autoplay=1&mute=1');
+                 // Try to add enablejsapi=1 for YouTube if not present for autoplay control
+                if (!modifiedIframe.includes('enablejsapi=1')) {
+                    if (modifiedIframe.includes('?')) {
+                        modifiedIframe = modifiedIframe.replace('?', '?enablejsapi=1&');
+                    } else {
+                        modifiedIframe = modifiedIframe.replace('embed/', 'embed/?enablejsapi=1');
+                    }
+                }
             }
           }
           return <div dangerouslySetInnerHTML={{ __html: modifiedIframe }} className={cn(commonVideoClasses, "overflow-hidden")} />;
         } else if (item.content.includes("youtube.com/embed") || item.content.includes("player.vimeo.com/video")) {
            let src = item.content;
            if (item.autoplay && src.includes('youtube.com/embed') && !src.includes('autoplay=1')) {
-             src += src.includes('?') ? '&autoplay=1&mute=1' : '?autoplay=1&mute=1';
+             src += (src.includes('?') ? '&' : '?') + 'autoplay=1&mute=1&enablejsapi=1';
            } else if (item.autoplay && src.includes('player.vimeo.com/video') && !src.includes('autoplay=1')) {
-             src += src.includes('?') ? '&autoplay=1&muted=1' : '?autoplay=1&muted=1';
+             src += (src.includes('?') ? '&' : '?') + 'autoplay=1&muted=1';
            }
            return <iframe src={src} className={commonVideoClasses} allow={allowString} allowFullScreen title={item.title || 'Scrapbook video'}></iframe>;
         } else if (item.content.match(/\.(mp4|webm|ogg)$/) !=null ) { 
@@ -108,7 +150,7 @@ export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
 
   return (
     <Card className={cn(
-        "h-full flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-card backdrop-blur-sm group relative", // Added relative for admin actions positioning
+        "h-full flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-card backdrop-blur-sm group relative", 
         "hover:scale-[1.02] hover:border-primary/50", 
         cardAccentColor 
       )}>
@@ -126,20 +168,37 @@ export function ScrapbookItemCard({ item, isAdmin }: ScrapbookItemCardProps) {
             </div>
           )}
         </div>
-        {item.title && <CardTitle className={cn("font-headline text-xl md:text-2d leading-tight", item.accentColor === 'accent1' ? 'text-accent1' : 'text-accent2')}>{item.title}</CardTitle>}
-        {(item.type === 'message' || (item.type === 'photo' && !item.description)) && !item.title && <CardTitle className="font-headline text-xl text-muted-foreground italic">A heartfelt submission...</CardTitle>}
+        {item.title && <CardTitle className={cn("font-headline text-xl md:text-2xl leading-tight", item.accentColor === 'accent1' ? 'text-accent1' : 'text-accent2')}>{item.title}</CardTitle>}
+        {((item.type === 'message' && item.content) || (item.type === 'photo' && !item.description)) && !item.title && <CardTitle className="font-headline text-xl text-muted-foreground italic">A heartfelt submission...</CardTitle>}
       </CardHeader>
       <CardContent className="flex-grow min-h-[100px]">
         {renderContent()}
       </CardContent>
-      {item.contributor && (
-        <CardFooter className="pt-4 mt-auto border-t">
+      <CardFooter className="pt-4 mt-auto border-t flex justify-between items-center">
+        {item.contributor && (
           <div className="flex items-center text-sm text-muted-foreground font-body">
             <UserCircle className="mr-2 h-4 w-4" />
             From: <span className="font-medium text-foreground/80 ml-1">{item.contributor}</span>
           </div>
-        </CardFooter>
-      )}
+        )}
+        <div className="ml-auto">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+                <Share2 className="h-4 w-4 mr-1" /> Share
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-2 space-y-1">
+              <Button variant="outline" size="sm" onClick={handleShareFacebook} className="w-full justify-start">
+                <Facebook className="h-4 w-4 mr-2 text-[#1877F2]" /> Facebook
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleCopyLink} className="w-full justify-start">
+                <Copy className="h-4 w-4 mr-2" /> Copy Link
+              </Button>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

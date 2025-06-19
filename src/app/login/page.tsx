@@ -1,4 +1,5 @@
 
+import type { Metadata } from 'next';
 import { LoginForm } from './LoginForm';
 import { isPasswordEnabled } from '@/lib/password-state';
 import { AdminIcon } from '@/components/auth/AdminIcon';
@@ -7,6 +8,33 @@ import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { PasswordSettingsForm } from './PasswordSettingsForm'; 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: "Ramon's 50th Jubilee! Login to Celebrate",
+  description: "Join Ramon's 50th Birthday Celebration! Log in to access the digital scrapbook, share memories, and join the party. Bongga Kaayo!",
+  openGraph: {
+    title: "Ramon's 50th Jubilee! Login to Celebrate",
+    description: "It's time for Ramon's Golden Jubilee! Access the exclusive digital scrapbook, share your wishes, and be part of this milestone celebration.",
+    url: '/', // Assuming login page is the root or adjust as needed. Base URL will be prepended.
+    images: [
+      {
+        url: 'https://placehold.co/1200x630.png?text=Ramon%27s+50th+Jubilee%21', // Replace with an actual engaging image
+        width: 1200,
+        height: 630,
+        alt: "Ramon's 50th Jubilee Celebration Login Page",
+        'data-ai-hint': 'party invitation festive',
+      },
+    ],
+    type: 'website',
+    siteName: "Ramon's 50th Celebration!",
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Ramon's 50th Jubilee! Login",
+    description: "Join the celebration for Ramon's 50th! Log in to share your messages and photos.",
+    images: ['https://placehold.co/1200x630.png?text=Ramon%27s+50th+Jubilee%21'], // Replace with an actual engaging image
+  },
+};
 
 
 export default async function LoginPage() {
@@ -51,4 +79,3 @@ export default async function LoginPage() {
     </main>
   );
 }
-
