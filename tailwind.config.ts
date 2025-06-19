@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['Alegreya', 'serif'],
+        headline: ['Belleza', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
@@ -40,6 +40,10 @@ export default {
         accent: {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
+        },
+        gold: {
+          DEFAULT: 'hsl(var(--gold))',
+          foreground: 'hsl(var(--gold-foreground))',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -88,10 +92,18 @@ export default {
             height: '0',
           },
         },
+        subtleGradient: {
+          '0%': { backgroundPosition: '0% 0%' },
+          '25%': { backgroundPosition: '100% 0%' },
+          '50%': { backgroundPosition: '100% 100%' },
+          '75%': { backgroundPosition: '0% 100%' },
+          '100%': { backgroundPosition: '0% 0%' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        subtleGradient: 'subtleGradient 25s ease infinite',
       },
     },
   },
