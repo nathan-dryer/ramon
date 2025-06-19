@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { AdminLoginForm } from '@/app/admin/AdminLoginForm';
 import { Button } from '@/components/ui/button';
-import { logoutAdmin } from '@/app/admin/actions'; // Ensure this action is correctly imported
+import { logoutAdmin } from '@/app/admin/actions';
 
 interface AdminIconProps {
   isAuthenticated: boolean;
@@ -30,22 +30,31 @@ export function AdminIcon({ isAuthenticated: initialIsAuthenticated }: AdminIcon
   }, [initialIsAuthenticated]);
 
   const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
+    // Removed optimistic setIsAuthenticated(true);
+    // We will rely on router.refresh() to update initialIsAuthenticated from the server,
+    // which will then trigger the useEffect above to update the local state.
     setIsDialogOpen(false);
-    router.refresh(); 
+    router.refresh();
   };
 
   const handleLogout = async () => {
-    await logoutAdmin(); // Server action will handle redirect
-    setIsAuthenticated(false);
+    // The logoutAdmin action already handles redirection.
+    // Client-side state changes here are mostly for immediate UI feedback
+    // if the redirect was not part of the action, but it is.
+    await logoutAdmin();
+    setIsAuthenticated(false); // Technically, page will redirect before this matters much
     setIsDialogOpen(false);
-    router.refresh(); // Refresh to reflect logged-out state
+    // router.refresh() might be redundant if logoutAdmin always redirects.
+    // However, if it's on a page that doesn't change, refresh ensures UI consistency.
+    // Given logoutAdmin redirects to /login, this refresh might not be strictly necessary
+    // for the logout case but doesn't harm.
+    router.refresh(); 
   };
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <button 
+        <button
           className={`absolute top-4 right-4 transition-colors ${isAuthenticated ? 'text-primary hover:text-primary/80' : 'text-muted-foreground hover:text-foreground/80'}`}
           aria-label={isAuthenticated ? "Admin Settings" : "Admin Login"}
           onClick={() => setIsDialogOpen(true)}
