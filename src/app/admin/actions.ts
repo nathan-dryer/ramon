@@ -16,15 +16,16 @@ interface AdminLoginFormState {
 export async function adminLogin(prevState: AdminLoginFormState, formData: FormData): Promise<AdminLoginFormState> {
   const password = formData.get('password') as string;
 
-  if (password === ADMIN_PASSWORD) {
+  // Make password check case-insensitive
+  if (password && password.toLowerCase() === ADMIN_PASSWORD) { // ADMIN_PASSWORD is already lowercase
     cookies().set(ADMIN_COOKIE_NAME, ADMIN_COOKIE_VALUE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60, // 1 hour
-      path: '/', 
+      path: '/',
       sameSite: 'lax',
     });
-    return { error: null, success: true }; 
+    return { error: null, success: true };
   } else {
     return { error: 'Invalid admin password.', success: false };
   }
