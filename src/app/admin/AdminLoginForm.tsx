@@ -22,7 +22,7 @@ function SubmitButton() {
 }
 
 export function AdminLoginForm() {
-  const [state, formAction] = useActionState(adminLogin, { error: null });
+  const [state, formAction] = useActionState(adminLogin, { error: null, success: false });
   const { toast } = useToast();
   const router = useRouter();
 
@@ -36,7 +36,9 @@ export function AdminLoginForm() {
     }
 
     if(state?.success){
-        router.push('/admin/dashboard');
+        // Close dialog (if any parent is listening for this)
+        // For now, just redirect. Parent dialog needs to handle closing itself on successful login.
+        router.push('/admin/dashboard'); 
     }
   }, [state, toast, router]);
 
@@ -56,3 +58,4 @@ export function AdminLoginForm() {
     </form>
   );
 }
+

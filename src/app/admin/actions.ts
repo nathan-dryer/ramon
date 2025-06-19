@@ -10,6 +10,7 @@ const ADMIN_COOKIE_VALUE = 'admin_is_authenticated';
 
 interface AdminLoginFormState {
   error: string | null;
+  success?: boolean; // Added success for redirect handling
 }
 
 export async function adminLogin(prevState: AdminLoginFormState, formData: FormData): Promise<AdminLoginFormState> {
@@ -20,12 +21,14 @@ export async function adminLogin(prevState: AdminLoginFormState, formData: FormD
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60, // 1 hour
-      path: '/admin',
+      path: '/', // Changed from '/admin' to '/'
       sameSite: 'lax',
     });
-    redirect('/admin/dashboard');
+    // Instead of redirecting here, return success and let client handle it
+    // This avoids issues with redirect within a form action that's part of a dialog
+    return { error: null, success: true }; 
   } else {
-    return { error: 'Invalid admin password.' };
+    return { error: 'Invalid admin password.', success: false };
   }
 }
 
@@ -34,8 +37,9 @@ export async function logoutAdmin() {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     maxAge: -1,
-    path: '/admin',
+    path: '/', // Changed from '/admin' to '/'
     sameSite: 'lax',
   });
   redirect('/admin');
 }
+
