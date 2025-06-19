@@ -5,8 +5,8 @@ import type { ScrapbookItemData } from '@/types';
 import { revalidatePath } from 'next/cache';
 
 // This is a mock "database". In a real app, use a proper database.
-// Exporting for use in global scrapbook actions.
-export const videoSubmissions: ScrapbookItemData[] = [];
+// NOT exporting this directly anymore. It's managed internally by this module.
+const videoSubmissions: ScrapbookItemData[] = [];
 
 export async function addVideoSubmission(prevState: any, formData: FormData) {
   const title = formData.get('title') as string;

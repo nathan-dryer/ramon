@@ -3,7 +3,7 @@
 
 import type { ScrapbookItemData } from '@/types';
 import { revalidatePath } from 'next/cache';
-import { getAdminVideos, videoSubmissions as adminVideoStore, deleteAdminVideo as actualDeleteAdminVideo } from '@/app/admin/videos/actions';
+import { getAdminVideos, deleteAdminVideo as actualDeleteAdminVideo, togglePinAdminVideo } from '@/app/admin/videos/actions';
 
 // Mock "database" for guestbook messages and user-uploaded photos
 const userSubmissions: ScrapbookItemData[] = [
@@ -131,7 +131,7 @@ export async function getGuestbookMessages(): Promise<ScrapbookItemData[]> {
 
 export async function getScrapbookItems(): Promise<ScrapbookItemData[]> {
   const userSubmittedItems = await getGuestbookMessages(); 
-  const adminVideos = await getAdminVideos(); // Fetches from admin/videos/actions.ts
+  const adminVideos = await getAdminVideos();
   
   const allItems = [...userSubmittedItems, ...hypeReelPhotos, ...adminVideos];
   
@@ -145,35 +145,37 @@ export async function getScrapbookItems(): Promise<ScrapbookItemData[]> {
 }
 
 export async function togglePinScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
-  let itemFound = false;
-  let currentPinnedStatus: boolean | undefined = false;
-
-  const collections = [userSubmissions, hypeReelPhotos, adminVideoStore];
-  for (const collection of collections) {
-    const itemIndex = collection.findIndex(item => item.id === itemId);
-    if (itemIndex !== -1) {
-      currentPinnedStatus = collection[itemIndex].pinned;
-      collection[itemIndex].pinned = !collection[itemIndex].pinned;
-      itemFound = true;
-      break;
-    }
+  const userItemIndex = userSubmissions.findIndex(item => item.id === itemId);
+  if (userItemIndex !== -1) {
+    const currentPinnedStatus = userSubmissions[userItemIndex].pinned;
+    userSubmissions[userItemIndex].pinned = !currentPinnedStatus;
+    revalidatePath('/scrapbook');
+    return { success: `Item ${userSubmissions[userItemIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
   }
 
-  if (!itemFound) {
-    return { error: 'Item not found.' };
+  const hypeReelItemIndex = hypeReelPhotos.findIndex(item => item.id === itemId);
+  if (hypeReelItemIndex !== -1) {
+    const currentPinnedStatus = hypeReelPhotos[hypeReelItemIndex].pinned;
+    hypeReelPhotos[hypeReelItemIndex].pinned = !currentPinnedStatus;
+    revalidatePath('/scrapbook');
+    return { success: `Item ${hypeReelPhotos[hypeReelItemIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
   }
 
-  revalidatePath('/scrapbook');
-  revalidatePath('/admin/videos'); // In case an admin video was pinned/unpinned
-
-  return { success: `Item ${!currentPinnedStatus ? 'pinned' : 'unpinned'} successfully.` };
+  // If not found in userSubmissions or hypeReelPhotos, try toggling as an admin video.
+  // togglePinAdminVideo expects (videoId, prevState, formData)
+  // It handles its own revalidation.
+  const adminVideoResult = await togglePinAdminVideo(itemId, null, formData || new FormData());
+  if (adminVideoResult.success) {
+    return adminVideoResult;
+  }
+  
+  // If we reach here, the item was not found or admin toggle failed.
+  return adminVideoResult.error ? { error: adminVideoResult.error } : { error: 'Item not found or could not be pinned.' };
 }
 
 export async function deleteScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
-  let itemFoundAndDeleted = false;
-
-  const findAndSplice = (collection: ScrapbookItemData[]) => {
-    const index = collection.findIndex(item => item.id === itemId);
+  const findAndSplice = (collection: ScrapbookItemData[], id: string) => {
+    const index = collection.findIndex(item => item.id === id);
     if (index !== -1) {
       collection.splice(index, 1);
       return true;
@@ -181,25 +183,24 @@ export async function deleteScrapbookItem(itemId: string, prevState?: any, formD
     return false;
   };
 
-  if (findAndSplice(userSubmissions) || findAndSplice(hypeReelPhotos)) {
-    itemFoundAndDeleted = true;
-  } else {
-    // Check if it's an admin video and use its specific delete function
-    const adminVideoIndex = adminVideoStore.findIndex(v => v.id === itemId);
-    if (adminVideoIndex !== -1) {
-      await actualDeleteAdminVideo(itemId); // This already revalidates paths
-      itemFoundAndDeleted = true; 
-      // actualDeleteAdminVideo handles revalidation, so we can return early or skip double revalidation
-      return { success: 'Admin video deleted successfully.' };
-    }
+  if (findAndSplice(userSubmissions, itemId)) {
+    revalidatePath('/scrapbook');
+    // No need to revalidate /admin/videos here as it's a user submission
+    return { success: 'User submission deleted successfully.' };
   }
 
-  if (!itemFoundAndDeleted) {
-    return { error: 'Item not found.' };
+  if (findAndSplice(hypeReelPhotos, itemId)) {
+    revalidatePath('/scrapbook');
+    // No need to revalidate /admin/videos here
+    return { success: 'Hype reel photo deleted successfully.' };
   }
 
-  revalidatePath('/scrapbook');
-  revalidatePath('/admin/videos'); 
-
-  return { success: 'Item deleted successfully.' };
+  // If not found in local arrays, try deleting as an admin video.
+  // actualDeleteAdminVideo (deleteAdminVideo from admin actions) handles its own revalidation.
+  const adminDeleteResult = await actualDeleteAdminVideo(itemId);
+  if (adminDeleteResult.success) {
+    return adminDeleteResult;
+  }
+  
+  return adminDeleteResult.error ? { error: adminDeleteResult.error } : { error: 'Item not found or could not be deleted.' };
 }
