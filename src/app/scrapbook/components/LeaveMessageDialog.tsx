@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -25,7 +26,7 @@ export function LeaveMessageDialog({ open, onOpenChange }: LeaveMessageDialogPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[90vw] md:max-w-[70vw] lg:max-w-[50vw] xl:max-w-[40vw] bg-card/95 backdrop-blur-md border-primary/50 p-0 rounded-lg">
         <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle className="text-2xl text-primary">Share Your Thoughts for Ramon!</DialogTitle>
+          <DialogTitle className="font-headline text-2xl text-primary">Post a Bday Message</DialogTitle>
           <DialogDescription className="text-muted-foreground font-body">
             Drop a birthday wish, a funny memory, or a cool photo. Let's fill this scrapbook!
           </DialogDescription>

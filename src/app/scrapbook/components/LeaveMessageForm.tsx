@@ -10,14 +10,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2, CheckCircle, Send, UploadCloud, XCircle, Image as ImageIcon } from 'lucide-react';
 import React, { useEffect, useRef, useState, useActionState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import NextImage from 'next/image'; // Renamed to avoid conflict with Lucide's Image
+import NextImage from 'next/image'; 
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" className="w-full sm:w-auto bg-accent2 hover:bg-accent2/90 text-accent2-foreground" disabled={pending}>
+    <Button 
+      type="submit" 
+      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-full py-3 text-base" 
+      disabled={pending}
+    >
       {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-      <span>Post Submission</span>
+      <span className="font-bold">Post</span>
     </Button>
   );
 }
@@ -53,7 +57,7 @@ export function LeaveMessageForm({ onSuccess }: LeaveMessageFormProps) {
       toast({
         title: "Success!",
         description: state.success,
-        action: <CheckCircle className="text-green-500" />, // This green might need to be themed
+        action: <CheckCircle className="text-green-500" />, 
       });
       formRef.current?.reset();
       setPhotoPreview(null);
@@ -71,7 +75,7 @@ export function LeaveMessageForm({ onSuccess }: LeaveMessageFormProps) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) { 
         toast({
           variant: "destructive",
           title: "File too large",
