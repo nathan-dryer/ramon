@@ -36,8 +36,7 @@ export async function addVideoSubmission(prevState: any, formData: FormData) {
     autoplay: autoplay,
   };
 
-  videoSubmissions.push(newVideo);
-  console.log('New video added:', newVideo);
+  videoSubmissions.unshift(newVideo); // Add to the beginning of the array
   
   revalidatePath('/scrapbook');
   revalidatePath('/admin/videos');
@@ -46,38 +45,35 @@ export async function addVideoSubmission(prevState: any, formData: FormData) {
 }
 
 export async function getAdminVideos(): Promise<ScrapbookItemData[]> {
-  // Sort by timestamp so newest appear first in admin list as well
+  // Sort by timestamp so newest appear first in admin list as well, but also consistent for scrapbook sorting
   return [...videoSubmissions].sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
 }
 
-export async function togglePinAdminVideo(videoId: string, prevState: any, formData: FormData) {
+export async function togglePinAdminVideo(videoId: string, prevState: any, formData?: FormData) { // formData can be optional
   const videoIndex = videoSubmissions.findIndex(v => v.id === videoId);
   if (videoIndex === -1) {
-    return { error: 'Video not found.' };
+    return { error: 'Admin video not found.' };
   }
 
   const currentPinnedStatus = videoSubmissions[videoIndex].pinned;
   videoSubmissions[videoIndex].pinned = !currentPinnedStatus;
   
-  console.log(`Video ${videoId} pinned status changed to: ${videoSubmissions[videoIndex].pinned}`);
-
   revalidatePath('/scrapbook');
   revalidatePath('/admin/videos');
 
-  return { success: `Video ${videoSubmissions[videoIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
+  return { success: `Admin video ${videoSubmissions[videoIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
 }
 
 export async function deleteAdminVideo(videoId: string): Promise<{ success?: string; error?: string }> {
   const videoIndex = videoSubmissions.findIndex(v => v.id === videoId);
   if (videoIndex === -1) {
-    return { error: 'Video not found.' };
+    return { error: 'Admin video not found.' };
   }
 
   videoSubmissions.splice(videoIndex, 1);
-  console.log(`Video ${videoId} deleted.`);
 
   revalidatePath('/scrapbook');
   revalidatePath('/admin/videos');
   
-  return { success: 'Video deleted successfully.' };
+  return { success: 'Admin video deleted successfully.' };
 }

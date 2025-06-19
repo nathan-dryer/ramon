@@ -120,57 +120,63 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
   userSubmissions.unshift(newItem); 
   
   revalidatePath('/scrapbook');
-  revalidatePath('/admin/videos'); 
+  revalidatePath('/admin/videos'); // In case an admin video was pinned/unpinned from scrapbook
 
   return { success: 'Your submission has been added!', item: newItem };
 }
 
 export async function getGuestbookMessages(): Promise<ScrapbookItemData[]> {
-  return userSubmissions;
+  // This function might not be strictly needed if getScrapbookItems covers all cases
+  return [...userSubmissions];
 }
 
 export async function getScrapbookItems(): Promise<ScrapbookItemData[]> {
-  const userSubmittedItems = await getGuestbookMessages(); 
+  // Fetch all sources of items
+  const userSubmittedItems = [...userSubmissions]; 
   const adminVideos = await getAdminVideos();
+  const curatedPhotos = [...hypeReelPhotos];
   
-  const allItems = [...userSubmittedItems, ...hypeReelPhotos, ...adminVideos];
+  const allItems = [...userSubmittedItems, ...curatedPhotos, ...adminVideos];
   
+  // Sort: Pinned items first, then by timestamp descending
   allItems.sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
-    return new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime();
+    // Fallback to 0 if timestamp is undefined to prevent crashes, though ideally all items have timestamps
+    const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+    const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+    return timeB - timeA;
   });
   
   return allItems;
 }
 
 export async function togglePinScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
+  // Try user submissions
   const userItemIndex = userSubmissions.findIndex(item => item.id === itemId);
   if (userItemIndex !== -1) {
-    const currentPinnedStatus = userSubmissions[userItemIndex].pinned;
-    userSubmissions[userItemIndex].pinned = !currentPinnedStatus;
+    userSubmissions[userItemIndex].pinned = !userSubmissions[userItemIndex].pinned;
     revalidatePath('/scrapbook');
     return { success: `Item ${userSubmissions[userItemIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
   }
 
+  // Try hype reel photos
   const hypeReelItemIndex = hypeReelPhotos.findIndex(item => item.id === itemId);
   if (hypeReelItemIndex !== -1) {
-    const currentPinnedStatus = hypeReelPhotos[hypeReelItemIndex].pinned;
-    hypeReelPhotos[hypeReelItemIndex].pinned = !currentPinnedStatus;
+    hypeReelPhotos[hypeReelItemIndex].pinned = !hypeReelPhotos[hypeReelItemIndex].pinned;
     revalidatePath('/scrapbook');
     return { success: `Item ${hypeReelPhotos[hypeReelItemIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
   }
 
-  // If not found in userSubmissions or hypeReelPhotos, try toggling as an admin video.
-  // togglePinAdminVideo expects (videoId, prevState, formData)
-  // It handles its own revalidation.
-  const adminVideoResult = await togglePinAdminVideo(itemId, null, formData || new FormData());
-  if (adminVideoResult.success) {
+  // Try admin videos by calling its specific togglePin action
+  // togglePinAdminVideo is expected to handle its own revalidation and error/success reporting.
+  const adminVideoResult = await togglePinAdminVideo(itemId, null, formData || new FormData()); 
+  if (adminVideoResult.success || adminVideoResult.error) { // Check if the action was relevant (found the video)
+    revalidatePath('/scrapbook'); // Ensure scrapbook updates if an admin video's pin status changed
     return adminVideoResult;
   }
   
-  // If we reach here, the item was not found or admin toggle failed.
-  return adminVideoResult.error ? { error: adminVideoResult.error } : { error: 'Item not found or could not be pinned.' };
+  return { error: 'Item not found or could not be pinned.' };
 }
 
 export async function deleteScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
@@ -185,22 +191,21 @@ export async function deleteScrapbookItem(itemId: string, prevState?: any, formD
 
   if (findAndSplice(userSubmissions, itemId)) {
     revalidatePath('/scrapbook');
-    // No need to revalidate /admin/videos here as it's a user submission
     return { success: 'User submission deleted successfully.' };
   }
 
   if (findAndSplice(hypeReelPhotos, itemId)) {
     revalidatePath('/scrapbook');
-    // No need to revalidate /admin/videos here
     return { success: 'Hype reel photo deleted successfully.' };
   }
 
-  // If not found in local arrays, try deleting as an admin video.
-  // actualDeleteAdminVideo (deleteAdminVideo from admin actions) handles its own revalidation.
+  // Try deleting as an admin video
+  // actualDeleteAdminVideo (deleteAdminVideo from admin actions) handles its own revalidation
   const adminDeleteResult = await actualDeleteAdminVideo(itemId);
-  if (adminDeleteResult.success) {
+  if (adminDeleteResult.success || adminDeleteResult.error) { // Check if the action was relevant
+     revalidatePath('/scrapbook'); // Ensure scrapbook updates if an admin video was deleted
     return adminDeleteResult;
   }
   
-  return adminDeleteResult.error ? { error: adminDeleteResult.error } : { error: 'Item not found or could not be deleted.' };
+  return { error: 'Item not found or could not be deleted.' };
 }
