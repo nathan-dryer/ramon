@@ -35,7 +35,11 @@ function PinButton({ pinned }: { pinned: boolean }) {
   );
 }
 
-function DeleteButton() {
+interface DeleteButtonProps {
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+function DeleteButton({ onClick }: DeleteButtonProps) {
   const { pending } = useFormStatus();
   return (
     <Button
@@ -45,6 +49,7 @@ function DeleteButton() {
       className="h-8 w-8 text-muted-foreground hover:text-destructive"
       disabled={pending}
       aria-label="Delete item"
+      onClick={onClick}
     >
       {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
     </Button>
@@ -59,7 +64,7 @@ export function AdminItemActions({ item }: AdminItemActionsProps) {
   useEffect(() => {
     if (pinState?.error) toast({ variant: 'destructive', title: 'Pin Error', description: pinState.error });
     // Pin success toast can be noisy.
-    // if (pinState?.success) toast({ title: 'Success', description: pinState.success }); 
+    // if (pinState?.success) toast({ title: 'Success', description: pinState.success });
   }, [pinState, toast]);
 
   useEffect(() => {
@@ -69,7 +74,7 @@ export function AdminItemActions({ item }: AdminItemActionsProps) {
 
   const handleDeleteConfirm = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!window.confirm(`Are you sure you want to delete "${item.title || `item ${item.id}`}"? This cannot be undone.`)) {
-      event.preventDefault();
+      event.preventDefault(); // Prevent form submission if user clicks "Cancel"
     }
   };
 
@@ -79,9 +84,7 @@ export function AdminItemActions({ item }: AdminItemActionsProps) {
         <PinButton pinned={!!item.pinned} />
       </form>
       <form action={deleteFormAction}>
-        <button onClick={handleDeleteConfirm} type="submit" className="contents">
-          <DeleteButton />
-        </button>
+        <DeleteButton onClick={handleDeleteConfirm} />
       </form>
     </div>
   );
