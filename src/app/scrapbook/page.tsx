@@ -9,7 +9,7 @@ import { isAdminAuthenticated } from '@/lib/adminAuth';
 
 export default async function ScrapbookPage() {
   const items = await getScrapbookItems();
-  const isAdmin = isAdminAuthenticated();
+  const isAdmin = await isAdminAuthenticated();
 
   return (
     <div className="flex flex-col min-h-screen"> 
@@ -20,7 +20,7 @@ export default async function ScrapbookPage() {
             Ramon's 50th Jubilee
           </h1>
         </Link>
-        <AdminIcon isAuthenticated={isAdmin} />
+        <AdminIcon isAuthenticated={isAdmin} key={isAdmin ? 'admin-logged-in' : 'admin-logged-out'} />
       </header>
       <div className="container mx-auto px-4 py-8 flex-grow">
         <div className="text-center mb-12 relative">

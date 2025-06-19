@@ -17,7 +17,7 @@ export function SiteHeader({ isAdmin = false }: SiteHeaderProps) {
           <PartyPopper className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-transform group-hover:scale-110" />
           <span className="font-headline text-xl sm:text-2xl font-bold text-foreground group-hover:text-primary transition-colors">Ramon's 50th Jubilee!</span>
         </Link>
-        <AdminIcon isAuthenticated={isAdmin} />
+        <AdminIcon isAuthenticated={isAdmin} key={isAdmin ? 'admin-logged-in' : 'admin-logged-out'} />
       </div>
     </header>
   );

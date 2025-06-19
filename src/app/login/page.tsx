@@ -15,7 +15,7 @@ export default async function LoginPage() {
 
   return (
     <main className="min-h-screen text-foreground">
-      <AdminIcon isAuthenticated={isAdmin} />
+      <AdminIcon isAuthenticated={isAdmin} key={isAdmin ? 'admin-logged-in' : 'admin-logged-out'} />
       <div
         className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8 pt-16 md:pt-20"
       >
