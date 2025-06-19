@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { addMessageSubmission } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, CheckCircle, Send, UploadCloud, XCircle, Image as ImageIcon } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useActionState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import NextImage from 'next/image'; // Renamed to avoid conflict with Lucide's Image
 
@@ -32,7 +32,7 @@ interface LeaveMessageFormProps {
 }
 
 export function LeaveMessageForm({ onSuccess }: LeaveMessageFormProps) {
-  const [state, formAction] = useFormState(addMessageSubmission, initialState);
+  const [state, formAction] = useActionState(addMessageSubmission, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

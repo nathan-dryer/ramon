@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useEffect } from 'react'; // Added useEffect
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useEffect, useActionState } from 'react'; // Added useActionState
+import { useFormStatus } from 'react-dom';
 import { login } from './actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,8 +23,8 @@ function SubmitButton() {
 
 
 export function LoginForm() {
-  // Using useFormState for server action handling
-  const [state, formAction] = useFormState(login, { error: null });
+  // Using useActionState for server action handling
+  const [state, formAction] = useActionState(login, { error: null }); // Updated to useActionState
   const { toast } = useToast();
 
   useEffect(() => {

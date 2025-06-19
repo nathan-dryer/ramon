@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { togglePinAdminVideo } from './actions';
 import { Button } from '@/components/ui/button';
 import { Pin, PinOff, Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useActionState } from 'react'; // Changed useFormState to useActionState
 import { useToast } from '@/hooks/use-toast';
 
 interface PinToggleButtonState {
@@ -33,7 +33,7 @@ function SubmitPinButton({ pinned }: { pinned: boolean }) {
 export function PinToggleButton({ videoId, isPinned }: { videoId: string; isPinned: boolean }) {
   // Bind videoId to the action
   const actionWithVideoId = togglePinAdminVideo.bind(null, videoId);
-  const [state, formAction] = useFormState<PinToggleButtonState, FormData>(actionWithVideoId, { error: null, success: null });
+  const [state, formAction] = useActionState<PinToggleButtonState, FormData>(actionWithVideoId, { error: null, success: null }); // Changed useFormState to useActionState
   const { toast } = useToast();
 
   useEffect(() => {

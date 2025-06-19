@@ -98,11 +98,11 @@ export function ScrapbookItemCard({ item }: ScrapbookItemCardProps) {
           {item.timestamp && (
             <div className="flex items-center text-xs text-muted-foreground font-body">
               <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
-              {new Date(item.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+              {new Date(item.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
             </div>
           )}
         </div>
-        {item.title && <CardTitle className={cn("font-headline text-xl md:text-2xl leading-tight", item.accentColor === 'accent1' ? 'text-accent1' : 'text-accent2')}>{item.title}</CardTitle>}
+        {item.title && <CardTitle className={cn("font-headline text-xl md:text-2d leading-tight", item.accentColor === 'accent1' ? 'text-accent1' : 'text-accent2')}>{item.title}</CardTitle>}
         {(item.type === 'message' || (item.type === 'photo' && !item.description)) && !item.title && <CardTitle className="font-headline text-xl text-muted-foreground italic">A heartfelt submission...</CardTitle>}
       </CardHeader>
       <CardContent className="flex-grow min-h-[100px]">

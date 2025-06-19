@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { addVideoSubmission } from './actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, CheckCircle, UploadCloud } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 function SubmitButton() {
@@ -27,7 +27,7 @@ const initialState = {
 };
 
 export function VideoAdminForm() {
-  const [state, formAction] = useFormState(addVideoSubmission, initialState);
+  const [state, formAction] = useActionState(addVideoSubmission, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
