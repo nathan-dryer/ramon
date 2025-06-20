@@ -1,7 +1,7 @@
 
 import type { ScrapbookItemData } from '@/types';
-import { ScrapbookItemCard } from './ScrapbookItemCard';
 import { Ghost } from 'lucide-react';
+import { ScrapbookItemCard } from './ScrapbookItemCard';
 
 interface ScrapbookGridProps {
   items: ScrapbookItemData[];
@@ -20,9 +20,19 @@ export function ScrapbookGrid({ items, isAdmin }: ScrapbookGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 p-0 md:p-4">
-      {items.map((item) => (
-        <ScrapbookItemCard key={item.id} item={item} isAdmin={isAdmin} />
+    <div className="columns-1 sm:columns-2 gap-6 md:gap-8 p-0 md:p-4">
+      {items.map((item, index) => (
+        <div
+          key={item.id}
+          className="mb-6 md:mb-8" // Add margin-bottom to create space between items in columns
+          style={{ breakInside: 'avoid-column' }} // Prevent items from breaking across columns
+        >
+          <ScrapbookItemCard
+            item={item}
+            isAdmin={isAdmin}
+            isPriority={index === 0}
+          />
+        </div>
       ))}
     </div>
   );

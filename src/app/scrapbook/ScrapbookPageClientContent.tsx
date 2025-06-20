@@ -4,50 +4,36 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ScrapbookGrid } from './components/ScrapbookGrid';
-import { getScrapbookItems } from './actions'; // Keep for potential refresh
 import { FloatingCTA } from './components/FloatingCTA';
 import { AdminIcon } from '@/components/auth/AdminIcon';
 import Link from 'next/link';
 import { PartyPopper, Loader2 } from 'lucide-react';
 import type { ScrapbookItemData } from '@/types';
-import { isAdminAuthenticated } from '@/lib/adminAuth'; // Keep for potential refresh
-
 
 interface ScrapbookPageClientContentProps {
-  initialIsAdmin: boolean;
   initialItems: ScrapbookItemData[];
+  isAdmin: boolean;
 }
 
-export function ScrapbookPageClientContent({ initialIsAdmin, initialItems }: ScrapbookPageClientContentProps) {
+export function ScrapbookPageClientContent({ initialItems, isAdmin }: ScrapbookPageClientContentProps) {
   const searchParams = useSearchParams();
   const [items, setItems] = useState<ScrapbookItemData[]>(initialItems);
-  const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
-  const [isLoading, setIsLoading] = useState(false); // Initial items are loaded, so false initially
+  const [isLoading, setIsLoading] = useState(false);
   const [initialDialogOpen, setInitialDialogOpen] = useState(false);
 
-  // Effect to re-fetch items or admin status if needed, e.g., after an action
-  // This is a simplified example; you might want more specific triggers
   useEffect(() => {
-    // Example: Re-check admin status if initialIsAdmin changes (e.g., after login/logout and refresh)
-    setIsAdmin(initialIsAdmin);
-  }, [initialIsAdmin]);
-
-  useEffect(() => {
-    // Update items if initialItems prop changes (e.g., after refresh)
     setItems(initialItems);
   }, [initialItems]);
-
 
   useEffect(() => {
     if (searchParams.get('action') === 'leaveMessage') {
       setInitialDialogOpen(true);
     } else {
-      setInitialDialogOpen(false); 
+      setInitialDialogOpen(false);
     }
   }, [searchParams]);
-  
 
-  if (isLoading) { // This might be used if you have client-side re-fetching logic
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -83,4 +69,3 @@ export function ScrapbookPageClientContent({ initialIsAdmin, initialItems }: Scr
     </div>
   );
 }
-

@@ -22,7 +22,7 @@ export async function adminLogin(prevState: AdminLoginFormState, formData: FormD
   // Make password check case-insensitive
   // ADMIN_PASSWORD is already processed to lowercase above.
   if (password && password.toLowerCase() === ADMIN_PASSWORD) {
-    cookies().set(ADMIN_COOKIE_NAME, ADMIN_COOKIE_VALUE, {
+    (await cookies()).set(ADMIN_COOKIE_NAME, ADMIN_COOKIE_VALUE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24, // 1 day
@@ -42,7 +42,7 @@ interface AdminLogoutState {
 
 export async function logoutAdmin(prevState: AdminLogoutState, formData: FormData): Promise<AdminLogoutState> {
   try {
-    cookies().set(ADMIN_COOKIE_NAME, '', {
+    (await cookies()).set(ADMIN_COOKIE_NAME, '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: -1, // Expire the cookie

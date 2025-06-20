@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { adminLogin } from './actions'; // Added import
+import { adminLogin } from './actions'; 
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -41,6 +41,7 @@ export function AdminLoginForm({ onSuccess }: AdminLoginFormProps) {
         if (onSuccess) {
           onSuccess();
         }
+        window.location.reload();
     }
   }, [state, toast, onSuccess]);
 

@@ -15,7 +15,7 @@ export async function login(prevState: LoginFormState, formData: FormData): Prom
   const passwordRequired = await isPasswordEnabled();
 
   if (!passwordRequired) {
-    cookies().set(AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE, {
+    (await cookies()).set(AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 7, // 1 week
@@ -32,7 +32,7 @@ export async function login(prevState: LoginFormState, formData: FormData): Prom
   }
 
   if (password.toLowerCase() === APP_PASSWORD.toLowerCase()) {
-    cookies().set(AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE, {
+    (await cookies()).set(AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 7, // 1 week

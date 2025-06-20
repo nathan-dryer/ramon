@@ -8,7 +8,11 @@
  * - EnhanceScrapbookMessageOutput - The return type for the enhanceScrapbookMessage function.
  */
 
-import { ai } from '@/ai/genkit';
+/*  This file must stay server-only.
+    To avoid Next.js including heavy Genkit/Gemini code in any possible
+    client bundle, do NOT import the `ai` helper at the module top-level.
+    Instead we dynamically import it inside a lazy getter. */
+
 import { z } from 'genkit';
 
 const EnhanceScrapbookMessageInputSchema = z.object({
@@ -24,11 +28,23 @@ const EnhanceScrapbookMessageOutputSchema = z.object({
 });
 export type EnhanceScrapbookMessageOutput = z.infer<typeof EnhanceScrapbookMessageOutputSchema>;
 
-const enhanceMessagePrompt = ai.definePrompt({
-  name: 'enhanceScrapbookMessagePrompt',
-  input: { schema: EnhanceScrapbookMessageInputSchema },
-  output: { schema: EnhanceScrapbookMessageOutputSchema },
-  prompt: `You are an AI assistant helping to enhance birthday messages for a digital scrapbook for Ramon's 50th birthday party.
+// -------- Lazy Genkit Flow (server-only) -----------------------------------
+// We memo-store the built flow so we only pay the setup cost once.
+let cachedFlow:
+  | ((input: EnhanceScrapbookMessageInput) => Promise<EnhanceScrapbookMessageOutput>)
+  | undefined;
+
+async function getFlow() {
+  if (cachedFlow) return cachedFlow;
+
+  // Dynamically import to ensure Genkit never appears in client bundles.
+  const { ai } = await import('@/ai/genkit');
+
+  const enhanceMessagePrompt = ai.definePrompt({
+    name: 'enhanceScrapbookMessagePrompt',
+    input: { schema: EnhanceScrapbookMessageInputSchema },
+    output: { schema: EnhanceScrapbookMessageOutputSchema },
+    prompt: `You are an AI assistant helping to enhance birthday messages for a digital scrapbook for Ramon's 50th birthday party.
 Your goal is to make the user's submission more engaging and visually appealing within the scrapbook's theme.
 
 Party Vibe: Fun, celebratory, energetic, memorable.
@@ -53,28 +69,33 @@ Your Task:
 
 Provide your response in the format specified by the output schema.
 `,
-});
+  });
 
-const enhanceScrapbookMessageFlow = ai.defineFlow(
-  {
-    name: 'enhanceScrapbookMessageFlow',
-    inputSchema: EnhanceScrapbookMessageInputSchema,
-    outputSchema: EnhanceScrapbookMessageOutputSchema,
-  },
-  async (input) => {
-    // Provide default for optional title if not present for the prompt
-    const promptInput = {
+  const flow = ai.defineFlow(
+    {
+      name: 'enhanceScrapbookMessageFlow',
+      inputSchema: EnhanceScrapbookMessageInputSchema,
+      outputSchema: EnhanceScrapbookMessageOutputSchema,
+    },
+    async (input: EnhanceScrapbookMessageInput) => {
+      // Provide default for optional title if not present for the prompt
+      const promptInput = {
         originalMessage: input.originalMessage,
-        originalTitle: input.originalTitle || '', 
-    };
-    const { output } = await enhanceMessagePrompt(promptInput);
-    if (!output) {
-      throw new Error('AI failed to generate an enhanced message.');
+        originalTitle: input.originalTitle || '',
+      };
+      const { output } = await enhanceMessagePrompt(promptInput);
+      if (!output) {
+        throw new Error('AI failed to generate an enhanced message.');
+      }
+      return output;
     }
-    return output;
-  }
-);
+  );
+
+  cachedFlow = flow;
+  return flow;
+}
 
 export async function enhanceScrapbookMessage(input: EnhanceScrapbookMessageInput): Promise<EnhanceScrapbookMessageOutput> {
-  return enhanceScrapbookMessageFlow(input);
+  const flow = await getFlow();
+  return flow(input);
 }

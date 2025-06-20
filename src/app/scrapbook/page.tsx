@@ -1,9 +1,7 @@
 
 import { Suspense } from 'react';
-// Removed client-hook imports that were causing the error.
-// ScrapbookGrid, FloatingCTA, AdminIcon, and related client-side imports are handled within ScrapbookPageClientContent.
 import { getScrapbookItems } from './actions';
-import { Loader2 } from 'lucide-react'; // For Suspense fallback
+import { Loader2 } from 'lucide-react'; 
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 import type { Metadata } from 'next';
 import { ScrapbookPageClientContent } from './ScrapbookPageClientContent';
@@ -38,8 +36,8 @@ export const metadata: Metadata = {
 
 // This Server Component wraps the Client Component that uses hooks
 export default async function ScrapbookPage() {
-  const adminStatus = await isAdminAuthenticated();
   const initialItems = await getScrapbookItems(); // Fetch initial items on server
+  const isAdmin = await isAdminAuthenticated(); // Fetch admin status on server
 
   return (
     <Suspense fallback={
@@ -49,8 +47,8 @@ export default async function ScrapbookPage() {
       </div>
     }>
       <ScrapbookPageClientContent 
-        initialIsAdmin={adminStatus} 
         initialItems={initialItems} 
+        isAdmin={isAdmin}
       />
     </Suspense>
   );

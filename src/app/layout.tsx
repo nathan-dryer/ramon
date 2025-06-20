@@ -1,8 +1,29 @@
 
 import type { Metadata } from 'next';
+import { Inter as FontSans, Merienda as FontSerif, Belleza as FontDisplay } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Footer } from '@/components/layout/Footer';
+import { cn } from '@/lib/utils';
+import ErrorBoundary from '@/components/ErrorBoundary';
+
+// Font configuration
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const fontSerif = FontSerif({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ['400', '700']
+});
+
+const fontDisplay = FontDisplay({
+    subsets: ["latin"],
+    variable: "--font-display",
+    weight: '400'
+});
 
 export const metadata: Metadata = {
   title: {
@@ -13,7 +34,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Ramon's 50th Celebration!",
     description: "A special digital scrapbook for Ramon's 50th. Join the party!",
-    // url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002', 
     images: [
       {
         url: `https://placehold.co/1200x630.png?text=Ramon%27s+BIG+50th%21`, 
@@ -30,7 +50,6 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Ramon's 50th Celebration!",
     description: "Help celebrate Ramon's 50th! Share your memories.",
-    // images: [`${process.env.NEXT_PUBLIC_BASE_URL}/og-image.png`], 
   },
 };
 
@@ -40,18 +59,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Belleza&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Merienda:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased text-foreground bg-background">
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn(
+        "min-h-screen bg-background font-sans antialiased",
+        fontSans.variable,
+        fontSerif.variable,
+        fontDisplay.variable
+      )}>
         <div className="relative min-h-screen flex flex-col">
           <main className="flex-grow flex flex-col">
-            {children}
+            {/* Catch runtime errors in any page/component */}
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </main>
           <Footer />
           <Toaster />

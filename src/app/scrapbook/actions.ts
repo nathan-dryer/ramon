@@ -1,78 +1,48 @@
-
 'use server';
 
 import type { ScrapbookItemData } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { getAdminVideos, deleteAdminVideo as actualDeleteAdminVideo, togglePinAdminVideo } from '@/app/admin/videos/actions';
 import { enhanceScrapbookMessage, type EnhanceScrapbookMessageInput } from '@/ai/flows/enhance-scrapbook-message-flow';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { withLock } from '@/lib/file-lock';
 
-// Mock "database" for guestbook messages and user-uploaded photos
-const userSubmissions: ScrapbookItemData[] = [
-  {
-    id: 'msg1',
-    type: 'message',
-    contributor: 'DJ RaveDave',
-    title: 'Can\'t wait to drop some beats! 🎧',
-    content: "Ramon my man! Heard it's the big 5-0. Get ready for an epic night, the tunes will be legendary. See you on the dance floor! 🔥",
-    timestamp: '2024-07-10T10:00:00Z',
-    accentColor: 'accent1',
-    pinned: false,
-  },
-  {
-    id: 'msg2',
-    type: 'message',
-    contributor: 'The Glowstick Crew',
-    title: 'To many more raves! ✨',
-    content: "Happy 50th, Ramon! May your energy never fade and your glowsticks always shine bright. We're bringing the good vibes and neon paint! 🎉",
-    timestamp: '2024-07-11T14:30:00Z',
-    accentColor: 'accent2',
-    pinned: false,
-  },
-];
+// Path to the JSON file that acts as a mock database
+const dbPath = path.join(process.cwd(), 'src', 'lib', 'scrapbook-items.json');
 
-// Mock data for initial "Hype Reel" photos (curated, not user-submitted here)
-const hypeReelPhotos: ScrapbookItemData[] = [
-  {
-    id: 'photo1_hype',
-    type: 'photo',
-    contributor: 'The Archives',
-    title: 'Ramon @ Ultra \'19',
-    content: 'https://placehold.co/600x400.png',
-    timestamp: '2024-07-01T00:00:00Z',
-    accentColor: 'accent2',
-    dataAiHint: 'festival crowd',
-    pinned: true, 
-  },
-  {
-    id: 'photo2_hype',
-    type: 'photo',
-    contributor: 'Old School Snaps',
-    title: '90s Rave King',
-    content: 'https://placehold.co/600x450.png',
-    timestamp: '2024-07-01T00:01:00Z',
-    accentColor: 'accent1',
-    dataAiHint: 'dj turntables',
-    pinned: false,
-  },
-   {
-    id: 'photo3_hype',
-    type: 'photo',
-    contributor: 'Travel Bug',
-    title: 'Ibiza Sunrise Set',
-    content: 'https://placehold.co/500x700.png',
-    timestamp: '2024-07-01T00:02:00Z',
-    accentColor: 'accent2',
-    dataAiHint: 'beach sunrise',
-    pinned: false,
-  },
-];
+// Helper function to read the database file
+async function readDbInternal(): Promise<ScrapbookItemData[]> {
+  try {
+    const data = await fs.readFile(dbPath, 'utf-8');
+    return JSON.parse(data) as ScrapbookItemData[];
+  } catch (error) {
+    if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
+      // If file doesn't exist, create it with an empty array
+      await fs.writeFile(dbPath, JSON.stringify([], null, 2), 'utf-8');
+      return [];
+    }
+    console.error("Critical error reading database file:", error);
+    // For other errors, rethrow to be handled by the caller or withLock
+    throw new Error(`Failed to read database file: ${(error as Error).message}`);
+  }
+}
 
+// Helper function to write to the database file
+async function writeDbInternal(data: ScrapbookItemData[]): Promise<void> {
+  try {
+    await fs.writeFile(dbPath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.error("Critical error writing to database file:", error);
+    throw new Error(`Failed to write to database file: ${(error as Error).message}`);
+  }
+}
 
 export async function addMessageSubmission(prevState: any, formData: FormData) {
   const contributor = formData.get('contributor') as string;
   const userTitle = formData.get('title') as string | null;
-  const userMessage = formData.get('message') as string; 
-  const photoDataUri = formData.get('photoDataUri') as string | null; 
+  const userMessage = formData.get('message') as string;
+  const photoDataUri = formData.get('photoDataUri') as string | null;
 
   if (!photoDataUri && !userMessage) {
     return { error: 'Please provide either a message or upload a photo.' };
@@ -87,12 +57,12 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
   }
   
   if (photoDataUri && !photoDataUri.startsWith('data:image/')) {
-    return { error: 'Invalid photo data format.' };
+    return { error: 'Invalid photo data format. Please check the uploaded file.' };
   }
-
+  
   let enhancedTitle = userTitle || 'A heartfelt submission!';
   let enhancedMessage = userMessage;
-  let suggestedAccentColor: 'accent1' | 'accent2' = Math.random() > 0.5 ? 'accent1' : 'accent2'; // Default random
+  let suggestedAccentColor: 'accent1' | 'accent2' = Math.random() > 0.5 ? 'accent1' : 'accent2';
 
   if (userMessage) {
     try {
@@ -106,30 +76,31 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
       suggestedAccentColor = aiResponse.suggestedAccentColor;
     } catch (aiError) {
       console.error("AI message enhancement failed:", aiError);
-      // Fallback to user's original content or defaults if AI fails
+      // Use a more user-friendly error, or proceed with non-enhanced content
+      // For now, we'll proceed with non-enhanced if AI fails but log it.
+      // A toast could inform the user that AI enhancement couldn't be applied.
     }
   }
-
-
+  
   let newItem: ScrapbookItemData;
 
   if (photoDataUri) {
     newItem = {
       id: `userphoto-${Date.now().toString()}`,
       type: 'photo',
-      content: photoDataUri, 
-      title: enhancedTitle, // Use AI enhanced title if message was also present, else user title or default for photo
-      description: enhancedMessage || undefined, // Use AI enhanced message as description if available
+      content: photoDataUri,
+      title: enhancedTitle,
+      description: enhancedMessage || undefined,
       contributor: contributor || 'Anonymous Guest',
       timestamp: new Date().toISOString(),
       accentColor: suggestedAccentColor,
       pinned: false,
     };
-  } else { 
+  } else {
     newItem = {
       id: `usermsg-${Date.now().toString()}`,
       type: 'message',
-      content: enhancedMessage, 
+      content: enhancedMessage, // Should be non-null if photoDataUri is null based on initial checks
       title: enhancedTitle,
       contributor: contributor || 'Anonymous Guest',
       timestamp: new Date().toISOString(),
@@ -138,85 +109,120 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
     };
   }
 
-  userSubmissions.unshift(newItem); 
-  
-  revalidatePath('/scrapbook');
-  revalidatePath('/admin/videos'); 
+  try {
+    await withLock(dbPath, async () => {
+      const items = await readDbInternal();
+      items.unshift(newItem);
+      await writeDbInternal(items);
+    });
 
-  return { success: 'Your submission has been added!', item: newItem };
-}
+    revalidatePath('/scrapbook');
+    revalidatePath('/admin/videos'); // Admin videos might be displayed alongside
 
-export async function getGuestbookMessages(): Promise<ScrapbookItemData[]> {
-  return [...userSubmissions];
+    return { success: 'Your submission has been added!', item: newItem };
+  } catch (error) {
+    console.error("Failed to add message submission due to file lock or write error:", error);
+    return { error: `An error occurred while saving your submission: ${(error as Error).message}. Please try again.` };
+  }
 }
 
 export async function getScrapbookItems(): Promise<ScrapbookItemData[]> {
-  const userSubmittedItems = [...userSubmissions]; 
-  const adminVideos = await getAdminVideos();
-  const curatedPhotos = [...hypeReelPhotos];
-  
-  const allItems = [...userSubmittedItems, ...curatedPhotos, ...adminVideos];
-  
-  allItems.sort((a, b) => {
-    if (a.pinned && !b.pinned) return -1;
-    if (!a.pinned && b.pinned) return 1;
-    const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-    const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-    return timeB - timeA;
-  });
-  
-  return allItems;
+  try {
+    const [userAndHypeItems, adminVideos] = await Promise.all([
+      withLock(dbPath, readDbInternal),
+      getAdminVideos() // Operates on in-memory data, no lock needed for dbPath
+    ]);
+
+    const allItems = [...userAndHypeItems, ...adminVideos];
+
+    allItems.sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return timeB - timeA;
+    });
+
+    return allItems;
+  } catch (error) {
+    console.error("Failed to get scrapbook items:", error);
+    // Return empty array or a default state to prevent page crash
+    return []; 
+  }
 }
+
 
 export async function togglePinScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
-  const userItemIndex = userSubmissions.findIndex(item => item.id === itemId);
-  if (userItemIndex !== -1) {
-    userSubmissions[userItemIndex].pinned = !userSubmissions[userItemIndex].pinned;
-    revalidatePath('/scrapbook');
-    return { success: `Item ${userSubmissions[userItemIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
-  }
+  try {
+    let resultMessage: string | null = null;
+    let foundInUserItems = false;
 
-  const hypeReelItemIndex = hypeReelPhotos.findIndex(item => item.id === itemId);
-  if (hypeReelItemIndex !== -1) {
-    hypeReelPhotos[hypeReelItemIndex].pinned = !hypeReelPhotos[hypeReelItemIndex].pinned;
-    revalidatePath('/scrapbook');
-    return { success: `Item ${hypeReelPhotos[hypeReelItemIndex].pinned ? 'pinned' : 'unpinned'} successfully.` };
-  }
+    await withLock(dbPath, async () => {
+      const items = await readDbInternal();
+      const itemIndex = items.findIndex(item => item.id === itemId);
 
-  const adminVideoResult = await togglePinAdminVideo(itemId, null, formData || new FormData()); 
-  if (adminVideoResult.success || adminVideoResult.error) { 
-    revalidatePath('/scrapbook'); 
-    return adminVideoResult;
+      if (itemIndex !== -1) {
+        foundInUserItems = true;
+        items[itemIndex].pinned = !items[itemIndex].pinned;
+        await writeDbInternal(items);
+        resultMessage = `Item ${items[itemIndex].pinned ? 'pinned' : 'unpinned'} successfully.`;
+      }
+    });
+
+    if (foundInUserItems && resultMessage) {
+      revalidatePath('/scrapbook');
+      return { success: resultMessage };
+    }
+
+    // If not found in user items, try admin videos
+    // togglePinAdminVideo is for in-memory admin videos, no dbPath lock needed here
+    const adminVideoResult = await togglePinAdminVideo(itemId, null, formData || new FormData()); 
+    if (adminVideoResult.success || adminVideoResult.error) {
+      revalidatePath('/scrapbook'); // Revalidate as admin videos affect the scrapbook
+      return adminVideoResult;
+    }
+
+    return { error: 'Item not found or could not be pinned.' };
+  } catch (error) {
+    console.error("Failed to toggle pin for item:", itemId, error);
+    return { error: `An error occurred while toggling pin status: ${(error as Error).message}.` };
   }
-  
-  return { error: 'Item not found or could not be pinned.' };
 }
 
+
 export async function deleteScrapbookItem(itemId: string, prevState?: any, formData?: FormData) {
-  const findAndSplice = (collection: ScrapbookItemData[], id: string) => {
-    const index = collection.findIndex(item => item.id === id);
-    if (index !== -1) {
-      collection.splice(index, 1);
-      return true;
+  try {
+    let resultMessage: string | null = null;
+    let foundInUserItems = false;
+
+    await withLock(dbPath, async () => {
+      const items = await readDbInternal();
+      const itemIndex = items.findIndex(item => item.id === itemId);
+
+      if (itemIndex !== -1) {
+        foundInUserItems = true;
+        items.splice(itemIndex, 1);
+        await writeDbInternal(items);
+        resultMessage = 'Item deleted successfully.';
+      }
+    });
+    
+    if (foundInUserItems && resultMessage) {
+      revalidatePath('/scrapbook');
+      return { success: resultMessage };
     }
-    return false;
-  };
 
-  if (findAndSplice(userSubmissions, itemId)) {
-    revalidatePath('/scrapbook');
-    return { success: 'User submission deleted successfully.' };
-  }
+    // If not found, try deleting an admin video
+    // actualDeleteAdminVideo is for in-memory admin videos
+    const adminDeleteResult = await actualDeleteAdminVideo(itemId);
+    if (adminDeleteResult.success || adminDeleteResult.error) {
+      revalidatePath('/scrapbook'); // Revalidate as admin videos affect the scrapbook
+      return adminDeleteResult;
+    }
 
-  if (findAndSplice(hypeReelPhotos, itemId)) {
-    revalidatePath('/scrapbook');
-    return { success: 'Hype reel photo deleted successfully.' };
+    return { error: 'Item not found or could not be deleted.' };
+  } catch (error) {
+    console.error("Failed to delete item:", itemId, error);
+    return { error: `An error occurred while deleting the item: ${(error as Error).message}.` };
   }
-  
-  const adminDeleteResult = await actualDeleteAdminVideo(itemId);
-  if (adminDeleteResult.success || adminDeleteResult.error) { 
-     revalidatePath('/scrapbook');
-    return adminDeleteResult;
-  }
-  
-  return { error: 'Item not found or could not be deleted.' };
 }

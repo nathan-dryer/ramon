@@ -3,11 +3,9 @@ import type { Metadata } from 'next';
 import { LoginForm } from './LoginForm';
 import { isPasswordEnabled } from '@/lib/password-state';
 import { AdminIcon } from '@/components/auth/AdminIcon';
-import { PartyPopper, Video } from 'lucide-react';
+import { PartyPopper } from 'lucide-react';
 import { isAdminAuthenticated } from '@/lib/adminAuth'; 
-import { PasswordSettingsForm } from './PasswordSettingsForm'; 
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { LoginClientContent } from './LoginClientContent';
 
 export const metadata: Metadata = {
   title: "Ramon's 50th Jubilee! Login to Celebrate",
@@ -15,8 +13,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Ramon's 50th Jubilee! Login to Celebrate",
     description: "It's time for Ramon's Golden Jubilee! Access the exclusive digital scrapbook, share your wishes, and be part of this milestone celebration.",
-    // For NEXT_PUBLIC_BASE_URL, ensure it's set in your environment for absolute URLs in production
-    // url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/login`, 
     images: [
       {
         url: `https://placehold.co/1200x630.png?text=Ramon%27s+50th+Jubilee%21`,
@@ -65,17 +61,9 @@ export default async function LoginPage() {
         <div className="w-full max-w-sm">
           <LoginForm passwordEnabled={passwordEnabled} />
         </div>
+        
+        <LoginClientContent isAdmin={isAdmin} />
 
-        {isAdmin && (
-          <div className="mt-12 w-full max-w-md flex flex-col items-center space-y-4">
-            <PasswordSettingsForm isEnabled={passwordEnabled} />
-            <Link href="/admin/videos" passHref>
-              <Button variant="secondary" size="lg" className="font-body">
-                <Video className="mr-2 h-5 w-5" /> Manage Admin Videos
-              </Button>
-            </Link>
-          </div>
-        )}
       </div>
     </main>
   );

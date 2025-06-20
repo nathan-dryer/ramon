@@ -1,7 +1,9 @@
-import type {Config} from 'tailwindcss';
+
+import type { Config } from 'tailwindcss';
+import { fontFamily } from 'tailwindcss/defaultTheme';
 
 export default {
-  darkMode: ['class'], // class or 'media' or boolean
+  darkMode: ['class'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -10,10 +12,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Alegreya', 'serif'],
-        headline: ['Belleza', 'sans-serif'],
-        code: ['monospace'],
-        display: ['Merienda', 'cursive'],
+        sans: ['var(--font-sans)', ...fontFamily.sans],
+        serif: ['var(--font-serif)', ...fontFamily.serif],
+        display: ['var(--font-display)'],
+        headline: ['var(--font-display)'], // Using display for headlines now
+        body: ['var(--font-serif)'], // Using serif for body
       },
       colors: {
         background: 'hsl(var(--background))',
