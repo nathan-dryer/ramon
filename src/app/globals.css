@@ -39,9 +39,20 @@
 
     --radius: 0.5rem;
 
-    /* Colors for the animated background specifically */
-    --magenta: 300 100% 50%; /* Original magenta for animation */
-    --light-pink: 300 100% 95%; /* Original light pink for animation */
+    /* ------------------------------------------------------------------ */
+    /* Balanced Pink & Green animated background palette                  */
+    /* ------------------------------------------------------------------ */
+    /* Pinks (vibrant → light)                                            */
+    --pink-1: #ff1493;  /* deep pink                                   */
+    --pink-2: #ff69b4;  /* hot pink                                    */
+    --pink-3: #ffb6c1;  /* light pink                                  */
+    /* Greens (fresh → light)                                             */
+    --green-1: #32cd32; /* lime green                                   */
+    --green-2: #00fa9a; /* medium spring green                          */
+    --green-3: #90ee90; /* light green                                  */
+    /* Soft transition blends                                             */
+    --blend-1: #f5fffa; /* mint cream                                   */
+    --blend-2: #f0f8ff; /* alice blue                                   */
   }
 
   .dark {
@@ -86,13 +97,24 @@
   }
   body {
     @apply text-foreground;
-    background: linear-gradient(-45deg, hsl(var(--background)), hsl(var(--light-pink)), hsl(var(--magenta)));
+    /* Balanced alternating pink ↔ green with pastel buffers for smoothness */
+    background: linear-gradient(
+      -45deg,
+      var(--green-1) 0%,
+      var(--pink-1) 15%,
+      var(--blend-1) 27%,
+      var(--green-2) 40%,
+      var(--pink-2) 55%,
+      var(--blend-2) 68%,
+      var(--green-3) 82%,
+      var(--pink-3) 100%
+    );
     background-size: 400% 400%;
-    animation: wave 15s ease-in-out infinite;
+    animation: wicked-wave 30s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
   }
 }
 
-@keyframes wave {
+@keyframes wicked-wave {
   0% {
     background-position: 0% 50%;
   }

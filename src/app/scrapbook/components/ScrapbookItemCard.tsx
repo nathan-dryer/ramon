@@ -1,13 +1,14 @@
-
 'use client'
-import type { ScrapbookItemData } from '@/types';
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+
+import { AdminItemActions } from './AdminItemActions';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { AdminItemActions } from './AdminItemActions'; 
-import { useState } from 'react';
 import { MediaModal } from './MediaModal';
+import type { ScrapbookItemData } from '@/types';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface ScrapbookItemCardProps {
   item: ScrapbookItemData;
@@ -24,12 +25,14 @@ export function ScrapbookItemCard({ item, isAdmin, isPriority = false }: Scrapbo
         setIsTruncated(!isTruncated);
     };
 
-    const formattedDate = new Date(item.timestamp).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'UTC',
-    });
+    const formattedDate = item.timestamp
+        ? new Date(item.timestamp).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            timeZone: 'UTC',
+        })
+        : null; // Handle case where timestamp might be missing
 
     const cardStyles = cn(
         "flex flex-col h-full", // Ensure flex column and full height for consistent layout
@@ -60,11 +63,18 @@ export function ScrapbookItemCard({ item, isAdmin, isPriority = false }: Scrapbo
                     </div>
                 )}
                 {item.pinned && (
-                     <Badge variant="default" className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 shadow-sm">Pinned</Badge>
+                     <Badge
+                        variant="default"
+                        className="absolute top-2 left-2 bg-primary/10 text-primary shadow-sm font-sans text-xs font-medium border border-primary/20"
+                     >
+                        Pinned
+                     </Badge>
                 )}
-                <CardTitle className="font-headline text-2xl pt-6">{item.title}</CardTitle>
-                <CardDescription className="font-body">
-                    By {item.contributor} &bull; {formattedDate}
+                <CardTitle className="font-display text-lg md:text-xl font-bold pt-6">
+                    {item.title}
+                </CardTitle>
+                <CardDescription className="font-sans text-sm md:text-base text-muted-foreground">
+                    By {item.contributor}{formattedDate ? ` • ${formattedDate}` : ''}
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -80,20 +90,29 @@ export function ScrapbookItemCard({ item, isAdmin, isPriority = false }: Scrapbo
                          />
                     </div>
                 )}
-                <p className={`font-body text-foreground/80 ${isLongMessage && isTruncated ? 'line-clamp-6' : ''}`}>
+                <p
+                    className={`font-serif text-sm md:text-base leading-relaxed text-foreground/80 ${
+                        isLongMessage && isTruncated ? 'line-clamp-6' : ''
+                    }`}
+                >
                     {item.type === 'message' ? item.content : item.description}
 
 
                 </p>
                 {isLongMessage && (
-                    <button onClick={toggleTruncate} className="text-primary font-semibold hover:underline mt-2">
+                    <button
+                        onClick={toggleTruncate}
+                        className="font-sans text-sm font-medium text-primary hover:underline mt-2"
+                    >
                         {isTruncated ? 'Read More' : 'Show Less'}
                     </button>
                 )}
             </CardContent>
             {item.type === 'video' && (
                  <CardFooter className="cursor-pointer" onClick={openModal}>
-                    <Badge variant="secondary" className="mt-auto">Video</Badge>
+                    <Badge variant="secondary" className="mt-auto font-sans text-xs font-medium">
+                        Video
+                    </Badge>
                 </CardFooter>
             )}
 
@@ -101,7 +120,7 @@ export function ScrapbookItemCard({ item, isAdmin, isPriority = false }: Scrapbo
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 mediaUrl={item.content}
-                mediaType={item.type === 'photo' ? 'image' : 'video'}
+                mediaType={item.type === 'photo' ? 'photo' : item.type === 'video' ? 'video' : null}
             />
 
         </Card>

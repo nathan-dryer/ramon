@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
    *   by aliasing them to `false`.  This prevents large, unused
    *   packages from being pulled into pages like `/scrapbook`,
    *   radically cutting first-load JS size.
+   * This is for when Webpack is used (e.g., `next build` or `next dev` without --turbopack).
    */
   webpack(config, { isServer }) {
     if (!isServer) {

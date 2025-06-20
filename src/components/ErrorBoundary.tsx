@@ -1,8 +1,9 @@
 'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '@/components/ui/button'; // Assuming Shadcn UI Button
 import { AlertTriangle, RotateCcw } from 'lucide-react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+
+import { Button } from '@/components/ui/button'; // Assuming Shadcn UI Button
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -33,7 +34,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // You can also log the error to an error reporting service
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    if (process.env.NODE_ENV === 'development') {
+      console.error("ErrorBoundary caught an error (dev mode):", error, errorInfo);
+    } else {
+      // In production, log less verbose information or send to a logging service
+      console.error("ErrorBoundary caught an error:", error.message);
+    }
     this.setState({ error, errorInfo });
 
     if (this.props.onError) {
@@ -60,10 +66,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           className="flex flex-col items-center justify-center min-h-[300px] p-6 bg-card border border-destructive/50 rounded-lg shadow-md text-card-foreground"
         >
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
-          <h2 className="text-2xl font-headline font-semibold text-destructive mb-2">
+          <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-semibold text-destructive mb-2">
             Oops! Something went wrong.
           </h2>
-          <p className="text-muted-foreground font-body text-center mb-6 max-w-md">
+          <p className="font-serif text-sm sm:text-base md:text-lg text-muted-foreground text-center mb-6 max-w-md">
             We're sorry for the inconvenience. An unexpected error occurred.
             Please try again, or contact support if the problem persists.
           </p>
@@ -81,7 +87,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           <Button
             onClick={this.handleRetry}
             variant="outline"
-            className="font-body border-primary text-primary hover:bg-primary/10 hover:text-primary"
+            className="font-sans border-primary text-primary hover:bg-primary/10 hover:text-primary"
           >
             <RotateCcw className="mr-2 h-4 w-4" />
             Try Again

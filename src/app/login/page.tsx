@@ -8,10 +8,10 @@ import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { LoginClientContent } from './LoginClientContent';
 
 export const metadata: Metadata = {
-  title: "Ramon's 50th Jubilee! Login to Celebrate",
+  title: "Ramon's Wicked 50th Celebration! Login to Celebrate",
   description: "Join Ramon's 50th Birthday Celebration! Log in to access the digital scrapbook, share memories, and join the party. Bongga Kaayo!",
   openGraph: {
-    title: "Ramon's 50th Jubilee! Login to Celebrate",
+    title: "Ramon's Wicked 50th Celebration! Login to Celebrate",
     description: "It's time for Ramon's Golden Jubilee! Access the exclusive digital scrapbook, share your wishes, and be part of this milestone celebration.",
     images: [
       {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Ramon's 50th Jubilee! Login",
+    title: "Ramon's Wicked 50th Celebration! Login",
     description: "Join the celebration for Ramon's 50th! Log in to share your messages and photos.",
     images: ['https://placehold.co/1200x630.png?text=Ramon%27s+50th+Jubilee%21'], 
   },
@@ -45,16 +45,14 @@ export default async function LoginPage() {
         className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8 pt-16 md:pt-20"
       >
         <div className="text-center mb-4 md:mb-6">
-          <div className="flex justify-center mb-4">
-            <PartyPopper className="h-16 w-16 text-primary" aria-hidden="true" />
-          </div>
-          <h1 className="font-headline text-6xl md:text-8xl font-bold text-foreground">
-            Ramon's 50th Jubilee
+          <h1 className="font-display text-6xl md:text-8xl font-bold text-foreground">
+            Ramon's Wicked 50th Celebration!
           </h1>
-          <p className="font-body text-2xl md:text-3xl text-muted-foreground mt-4 max-w-2xl mx-auto">
+          <p className="flex items-center justify-center font-serif text-2xl md:text-3xl text-muted-foreground mt-4 max-w-2xl mx-auto">
             <span className="transition-all hover:text-foreground hover:tracking-wide">
               Bongga Kaayo! Let's Celebrate!
             </span>
+            <PartyPopper className="h-10 w-10 ml-3 text-primary" aria-hidden="true" />
           </p>
         </div>
 

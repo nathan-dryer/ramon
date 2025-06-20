@@ -8,10 +8,10 @@ import { ScrapbookPageClientContent } from './ScrapbookPageClientContent';
 
 
 export const metadata: Metadata = {
-  title: "Ramon's 50th Jubilee Scrapbook | Share Your Memories!",
+  title: "Ramon's Wicked 50th! | Share Your Memories!",
   description: "Join the celebration! Browse messages, photos, and videos for Ramon's 50th birthday. Leave your own special message!",
   openGraph: {
-    title: "Ramon's 50th Jubilee Scrapbook | Share Your Memories!",
+    title: "Ramon's Wicked 50th! | Share Your Memories!",
     description: "A digital scrapbook filled with love and memories for Ramon's big 5-0. Come see and contribute!",
     // url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/scrapbook`,
     images: [
@@ -24,11 +24,11 @@ export const metadata: Metadata = {
       },
     ],
     type: 'website',
-    siteName: "Ramon's 50th Celebration!",
+    siteName: "Ramon's Wicked 50th Celebration!",
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Ramon's 50th Jubilee Scrapbook | Share Your Memories!",
+    title: "Ramon's Wicked 50th! | Share Your Memories!",
     description: "Join the celebration for Ramon's 50th! View the digital scrapbook and add your wishes.",
     images: ['https://placehold.co/1200x630.png?text=Ramon%27s+Jubilee+Scrapbook'],
   },
@@ -43,7 +43,7 @@ export default async function ScrapbookPage() {
     <Suspense fallback={
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4 font-body text-lg text-muted-foreground">Loading Page...</p>
+        <p className="mt-4 font-serif text-lg text-muted-foreground">Loading Page...</p>
       </div>
     }>
       <ScrapbookPageClientContent 

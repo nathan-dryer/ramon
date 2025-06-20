@@ -9,6 +9,9 @@ import { Separator } from '@/components/ui/separator';
 import { Video, ListVideo, Pin as PinIcon, PlayCircle } from 'lucide-react';
 import { PinToggleButton } from './PinToggleButton';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
 
 async function SubmittedVideosList() {
   const videos = await getAdminVideos();
@@ -49,7 +52,17 @@ export default async function AdminVideosPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <SiteHeader isAdmin={isAdmin} />
-      <div className="container mx-auto px-4 py-8 flex-grow">
+      {/* top-right quick-nav bar */}
+      <div className="container mx-auto px-4 pt-4 flex justify-end">
+        <Link href="/scrapbook">
+          <Button variant="outline" size="sm" className="font-body">
+            <Eye className="mr-2 h-4 w-4" />
+            View Scrapbook
+          </Button>
+        </Link>
+      </div>
+
+      <div className="container mx-auto px-4 py-4 flex-grow">
         <div className="text-center mb-12">
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground mb-3">
             Admin Video Management

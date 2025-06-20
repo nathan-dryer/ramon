@@ -14,12 +14,17 @@ import { useRouter } from 'next/navigation';
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button 
-      type="submit" 
-      className="w-full max-w-xs mx-auto bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg rounded-full" 
+    <Button
+      type="submit"
+      size="lg"
+      className="w-full max-w-xs mx-auto text-lg font-bold shadow-lg transition-all transform-gpu hover:shadow-xl hover:scale-105"
       disabled={pending}
     >
-      {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <span className="font-bold">Let's Party!</span>}
+      {pending ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <span>Join Party</span>
+      )}
     </Button>
   );
 }
@@ -60,7 +65,7 @@ export function LoginForm({ passwordEnabled }: { passwordEnabled: boolean }) {
       <form action={formAction} className="space-y-6 mt-4">
         {passwordEnabled ? (
           <div className="space-y-3 max-w-sm mx-auto">
-            <p className="font-body text-muted-foreground mb-4">
+            <p className="font-serif text-muted-foreground mb-4">
               Please enter the password to join.
             </p>
             <Label htmlFor="password" className="sr-only">Password</Label>
@@ -73,7 +78,7 @@ export function LoginForm({ passwordEnabled }: { passwordEnabled: boolean }) {
               className="bg-white/80 border-slate-300 focus:ring-violet-500 text-slate-800 text-center text-lg"
               aria-describedby="password-hint"
             />
-            <p id="password-hint" className="text-xs text-slate-500 font-body pt-1">
+            <p id="password-hint" className="text-xs text-slate-500 font-sans pt-1">
               Hint: It's a special milestone!
             </p>
           </div>

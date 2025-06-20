@@ -60,6 +60,12 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
     return { error: 'Invalid photo data format. Please check the uploaded file.' };
   }
   
+  // Validate photo size (approx 5MB limit for the original file)
+  const MAX_DATA_URI_LENGTH = 7000000; // Approx 5.25MB file
+  if (photoDataUri && photoDataUri.length > MAX_DATA_URI_LENGTH) {
+    return { error: 'Photo is too large. Please upload a file smaller than 5MB.' };
+  }
+
   let enhancedTitle = userTitle || 'A heartfelt submission!';
   let enhancedMessage = userMessage;
   let suggestedAccentColor: 'accent1' | 'accent2' = Math.random() > 0.5 ? 'accent1' : 'accent2';
@@ -75,7 +81,11 @@ export async function addMessageSubmission(prevState: any, formData: FormData) {
       enhancedMessage = aiResponse.enhancedMessage;
       suggestedAccentColor = aiResponse.suggestedAccentColor;
     } catch (aiError) {
-      console.error("AI message enhancement failed:", aiError);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("AI message enhancement failed (dev mode):", aiError);
+      } else {
+        console.error("AI message enhancement failed:", (aiError instanceof Error ? aiError.message : String(aiError)));
+      }
       // Use a more user-friendly error, or proceed with non-enhanced content
       // For now, we'll proceed with non-enhanced if AI fails but log it.
       // A toast could inform the user that AI enhancement couldn't be applied.

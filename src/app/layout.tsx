@@ -1,6 +1,16 @@
 
 import type { Metadata } from 'next';
-import { Inter as FontSans, Merienda as FontSerif, Belleza as FontDisplay } from 'next/font/google';
+/**
+ * Modern font hierarchy:
+ * - Display: Plus Jakarta Sans (titles, hero text)
+ * - Sans:    Inter            (headings, UI elements, labels)
+ * - Serif:   Source Serif 4   (body text, messages, descriptions)
+ */
+import {
+  Plus_Jakarta_Sans as FontDisplay,
+  Inter as FontSans,
+  Source_Serif_4 as FontSerif,
+} from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Footer } from '@/components/layout/Footer';
@@ -9,30 +19,31 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Font configuration
 const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
+  subsets: ['latin'],
+  variable: '--font-sans',
+  weight: ['400', '500', '600', '700'],
 });
 
 const fontSerif = FontSerif({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  weight: ['400', '700']
+  subsets: ['latin'],
+  variable: '--font-serif',
+  weight: ['400', '600', '700'],
 });
 
 const fontDisplay = FontDisplay({
-    subsets: ["latin"],
-    variable: "--font-display",
-    weight: '400'
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['400', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Ramon's 50th Celebration!",
+    default: "Ramon's Wicked 50th Celebration!",
     template: "%s | Ramon's 50th",
   },
   description: "Join us in celebrating Ramon's 50th Birthday! Share messages, photos, and memories in this special digital scrapbook. Bongga Kaayo!",
   openGraph: {
-    title: "Ramon's 50th Celebration!",
+    title: "Ramon's Wicked 50th Celebration!",
     description: "A special digital scrapbook for Ramon's 50th. Join the party!",
     images: [
       {
@@ -44,11 +55,11 @@ export const metadata: Metadata = {
       },
     ],
     type: 'website',
-    siteName: "Ramon's 50th Celebration!",
+    siteName: "Ramon's Wicked 50th Celebration!",
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Ramon's 50th Celebration!",
+    title: "Ramon's Wicked 50th Celebration!",
     description: "Help celebrate Ramon's 50th! Share your memories.",
   },
 };

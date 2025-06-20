@@ -1,11 +1,11 @@
-
 'use client';
 
-import { useFormStatus } from 'react-dom';
-import { togglePinAdminVideo } from './actions';
+import { Loader2, Pin, PinOff } from 'lucide-react';
+import { useActionState, useEffect } from 'react'; // Changed useFormState to useActionState
+
 import { Button } from '@/components/ui/button';
-import { Pin, PinOff, Loader2 } from 'lucide-react';
-import { useEffect, useActionState } from 'react'; // Changed useFormState to useActionState
+import { togglePinAdminVideo } from './actions';
+import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 
 interface PinToggleButtonState {
@@ -41,9 +41,7 @@ export function PinToggleButton({ videoId, isPinned }: { videoId: string; isPinn
       toast({ variant: "destructive", title: "Error", description: state.error });
     }
     // Success toast can be a bit noisy for quick actions like pinning.
-    // if (state?.success) {
-    //   toast({ title: "Success", description: state.success });
-    // }
+
   }, [state, toast]);
 
   return (

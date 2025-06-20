@@ -27,11 +27,19 @@ export function LeaveMessageDialog({ open, onOpenChange }: LeaveMessageDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]" aria-describedby="message-dialog-description">
+      <DialogContent
+        className="max-w-[95vw] mx-4 sm:mx-0 sm:max-w-[480px]"
+        aria-describedby="message-dialog-description"
+      >
         <DialogHeader>
-          <DialogTitle className="font-headline text-2xl">Share Your Memory</DialogTitle>
-          <DialogDescription id="message-dialog-description" className="font-body">
-            Add your message, photo, or both to celebrate Ramon. Let's make this unforgettable!
+          <DialogTitle className="font-display text-xl sm:text-2xl">
+            Share Your Memory
+          </DialogTitle>
+          <DialogDescription
+            id="message-dialog-description"
+            className="font-serif text-sm sm:text-base"
+          >
+            Upload a photo, message—or both—to help us celebrate Ramon's Wicked 50th Birthday Celebration!
  </DialogDescription>
         </DialogHeader>
         <LeaveMessageForm onFormSuccess={handleFormSuccess} />

@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useActionState } from 'react';
@@ -23,14 +22,20 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full">
+    <Button
+      type="submit"
+      disabled={pending}
+      /* rely on Button’s default “primary” variant for cohesive color,
+         add motion / shadow utilities for micro-interaction */
+      className="w-full shadow-lg hover:shadow-xl transform-gpu hover:scale-105 transition-all"
+    >
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Submitting...
         </>
       ) : (
-        'Add to Scrapbook'
+        'Post'
       )}
     </Button>
   );
@@ -50,15 +55,14 @@ export function LeaveMessageForm({ onFormSuccess }: LeaveMessageFormProps) {
   useEffect(() => {
     if (state.success) {
       toast({
-        title: "Submission Received!",
-        description: 'Thanks for adding your memory to the scrapbook.',
-        variant: 'default',
-        duration: 5000,
-        action: (
-          <div className="flex items-center">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
-          </div>
+        title: <span className="font-sans font-semibold">Success!</span>,
+        description: (
+          <span className="font-serif">
+            Your memory has been added to the scrapbook.
+          </span>
         ),
+        variant: 'success',
+        duration: 3000,
       });
       formRef.current?.reset();
       setPhotoPreview(null);
@@ -67,8 +71,12 @@ export function LeaveMessageForm({ onFormSuccess }: LeaveMessageFormProps) {
       }
     } else if (state.error) {
        toast({
-        title: 'Oops! Something went wrong.',
-        description: state.error,
+        title: <span className="font-sans font-semibold">Submission Failed</span>,
+        description: (
+          <span className="font-serif">
+            {state.error ?? 'Please try again in a moment.'}
+          </span>
+        ),
         variant: 'destructive',
       });
     }
@@ -97,24 +105,42 @@ export function LeaveMessageForm({ onFormSuccess }: LeaveMessageFormProps) {
     <form ref={formRef} action={formAction} className="space-y-4 py-4">
       <div className="grid grid-cols-1 gap-4">
         <div>
-          <Label htmlFor="contributor">Your Name</Label>
-          <Input id="contributor" name="contributor" required placeholder="DJ Jazzy Jeff" />
+          <Label htmlFor="contributor" className="font-sans text-sm font-medium">
+            Your Name
+          </Label>
+          <Input
+            id="contributor"
+            name="contributor"
+            required
+            maxLength={60}
+            placeholder="Enter your name"
+          />
         </div>
         <div>
-          <Label htmlFor="title">Title for your message</Label>
-          <Input id="title" name="title" placeholder="A blast from the past!" />
+          <Label htmlFor="title" className="font-sans text-sm font-medium">
+            Memory Title
+          </Label>
+          <Input
+            id="title"
+            name="title"
+            maxLength={100}
+            placeholder="Give your memory a title"
+          />
         </div>
         <div>
-          <Label htmlFor="message">Message or Photo Caption</Label>
+          <Label htmlFor="message" className="font-sans text-sm font-medium">
+            Message or Photo Caption
+          </Label>
           <Textarea
             id="message"
             name="message"
             rows={4}
-            placeholder="Remember that time at the warehouse party in '98...?"
+            maxLength={1000}
+            placeholder="Share your favorite memory of Ramon..."
           />
         </div>
          <div>
-          <Label htmlFor="photo">Upload a Photo</Label>
+          <Label htmlFor="photo" className="font-sans text-sm font-medium">Upload a Photo</Label>
           <Input id="photo" type="file" accept="image/*" onChange={handleFileChange} ref={fileInputRef} className="hidden" />
           <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className='w-full'>
             <Upload className="mr-2 h-4 w-4" /> Choose File
