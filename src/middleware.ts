@@ -8,8 +8,8 @@ const ADMIN_COOKIE_VALUE = 'admin_is_authenticated';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protect only the /admin/videos path now
-  if (pathname.startsWith('/admin/videos')) {
+  // Protect every /admin/* route (dashboard, videos, future pages)
+  if (pathname.startsWith('/admin')) {
     const adminCookie = cookies().get(ADMIN_COOKIE_NAME);
     if (!adminCookie || adminCookie.value !== ADMIN_COOKIE_VALUE) {
       // Redirect to login page, admin can login via AdminIcon there
@@ -22,5 +22,6 @@ export function middleware(request: NextRequest) {
 
 // Specify paths for the middleware to run on
 export const config = {
-  matcher: ['/admin/videos/:path*'], // Only run middleware for /admin/videos routes
+  // Run on any route under /admin/
+  matcher: ['/admin/:path*'],
 };

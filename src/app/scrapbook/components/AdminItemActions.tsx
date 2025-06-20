@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreVertical, Pin, PinOff, Trash2, Loader2, AlertTriangle } from 'lucide-react';
-import { useFormState } from 'react-dom';
 import { togglePinScrapbookItem, deleteScrapbookItem } from '../actions';
 import type { ScrapbookItemData } from '@/types';
 
@@ -21,7 +20,7 @@ interface AdminItemActionsProps {
 
 export function AdminItemActions({ item }: AdminItemActionsProps) {
   const [isPinning, setIsPinning] = useState(false);
-  const [isDeleting, setIsDeleting] =useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Note: The `action` function for useFormState must be defined in a Server Component.
   // We are calling server actions directly here. This is fine for simple cases.
