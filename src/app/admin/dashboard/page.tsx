@@ -1,14 +1,10 @@
 
-import { isPasswordEnabled } from '@/lib/password-state';
-import { PasswordToggle } from './PasswordToggle';
 import { Button } from '@/components/ui/button';
 import { logoutAdmin } from '../actions';
 import Link from 'next/link';
 import { Eye } from 'lucide-react';
 
 export default async function AdminDashboard() {
-  const passwordEnabled = await isPasswordEnabled();
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background text-foreground">
       <div className="w-full max-w-2xl">
@@ -26,7 +22,6 @@ export default async function AdminDashboard() {
             </form>
           </div>
         </div>
-        <PasswordToggle isEnabled={passwordEnabled} />
         
         <div className="mt-12 text-center">
           <Link href="/admin/videos" passHref>

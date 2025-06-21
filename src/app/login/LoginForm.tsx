@@ -29,7 +29,7 @@ function SubmitButton() {
   );
 }
 
-export function LoginForm({ passwordEnabled }: { passwordEnabled: boolean }) {
+export function LoginForm({ passwordEnabled: _ }: { passwordEnabled: boolean }) { // passwordEnabled is no longer used
   const [state, formAction] = useActionState(login, { error: null });
   const { toast } = useToast();
   const router = useRouter();
@@ -63,26 +63,8 @@ export function LoginForm({ passwordEnabled }: { passwordEnabled: boolean }) {
       </div>
 
       <form action={formAction} className="space-y-6 mt-4">
-        {passwordEnabled ? (
-          <div className="space-y-3 max-w-sm mx-auto">
-            <p className="font-serif text-muted-foreground mb-4">
-              Please enter the password to join.
-            </p>
-            <Label htmlFor="password" className="sr-only">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              placeholder="Enter the secret password"
-              className="bg-white/80 border-slate-300 focus:ring-violet-500 text-slate-800 text-center text-lg"
-              aria-describedby="password-hint"
-            />
-            <p id="password-hint" className="text-xs text-slate-500 font-sans pt-1">
-              Hint: It's a special milestone!
-            </p>
-          </div>
-        ) : null}
+        {/* Password input is removed as passwordEnabled is always false now */}
+        {/* {passwordEnabled ? ( ... ) : null} */}
         <SubmitButton />
       </form>
     </div>

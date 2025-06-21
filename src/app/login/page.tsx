@@ -1,7 +1,7 @@
 
 import type { Metadata } from 'next';
 import { LoginForm } from './LoginForm';
-import { isPasswordEnabled } from '@/lib/password-state';
+// import { isPasswordEnabled } from '@/lib/password-state'; // No longer needed
 import { AdminIcon } from '@/components/auth/AdminIcon';
 import { PartyPopper } from 'lucide-react';
 import { isAdminAuthenticated } from '@/lib/adminAuth'; 
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 
 
 export default async function LoginPage() {
-  const passwordEnabled = await isPasswordEnabled();
+  // const passwordEnabled = await isPasswordEnabled(); // This line should be removed
   const isAdmin = await isAdminAuthenticated(); 
 
   return (
@@ -57,7 +57,7 @@ export default async function LoginPage() {
         </div>
 
         <div className="w-full max-w-sm">
-          <LoginForm passwordEnabled={passwordEnabled} />
+          <LoginForm passwordEnabled={false} /> {/* Pass false directly, or update LoginForm to not expect it */}
         </div>
         
         <LoginClientContent isAdmin={isAdmin} />
